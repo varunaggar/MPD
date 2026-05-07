@@ -1,0 +1,135 @@
+<Configuration>
+    <Modules>
+        <!-- <Module Name="ImportExcel" /> -->
+        <!-- <Module Name="Microsoft.Graph.Authentication" /> -->
+        <!-- <Module Name="ExchangeOnlineManagement" /> -->
+        <!-- <Module Name="Az.Accounts" /> -->
+    </Modules>
+
+    <Services>
+        <Defaults>
+            <!-- Global Defaults -->
+            <TenantId>contoso.onmicrosoft.com</TenantId>
+        </Defaults>
+
+        <!-- ========================================================= -->
+        <!-- EXCHANGE ONLINE EXAMPLES                                  -->
+        <!-- ========================================================= -->
+
+        <!-- 1. Interactive (Delegated) -->
+        <Service Name="ExchangeOnline">
+            <Enabled>false</Enabled>
+            <AuthMethod>Interactive</AuthMethod>
+            <UserPrincipalName>admin@contoso.onmicrosoft.com</UserPrincipalName> 
+        </Service>
+
+        <!-- 2. Certificate (App-Only) -->
+        <Service Name="ExchangeOnline">
+            <Enabled>false</Enabled>
+            <AuthMethod>Certificate</AuthMethod>
+            <TenantId>contoso.onmicrosoft.com</TenantId>
+            <Organization>contoso.onmicrosoft.com</Organization> <!-- Required for Exchange App-Only -->
+            <ClientId>00000000-0000-0000-0000-000000000000</ClientId>
+            <CertificateThumbprint>A1B2C3D4...</CertificateThumbprint>
+        </Service>
+
+        <!-- 3. Managed Identity (System Assigned) -->
+        <Service Name="ExchangeOnline">
+            <Enabled>false</Enabled>
+            <AuthMethod>ManagedIdentity</AuthMethod>
+            <Organization>contoso.onmicrosoft.com</Organization>
+        </Service>
+        
+        <!-- 4. Client Secret (App-Only via Token) -->
+        <!-- Note: Exchange Module doesn't support ClientSecret natively. Script must acquire token first. -->
+        <Service Name="ExchangeOnline">
+            <Enabled>false</Enabled>
+            <AuthMethod>ClientSecret</AuthMethod>
+            <TenantId>contoso.onmicrosoft.com</TenantId>
+            <Organization>contoso.onmicrosoft.com</Organization>
+            <ClientId>00000000-0000-0000-0000-000000000000</ClientId>
+            <ClientSecret>YourSecretValueHere</ClientSecret>
+        </Service>
+
+        <!-- ========================================================= -->
+        <!-- MICROSOFT GRAPH EXAMPLES                                  -->
+        <!-- ========================================================= -->
+
+        <!-- 1. Interactive -->
+        <Service Name="Graph">
+            <Enabled>false</Enabled>
+            <AuthMethod>Interactive</AuthMethod>
+            <Environment>Global</Environment> <!-- Optional: Global, USGov, China -->
+            <ContextScope>Process</ContextScope> <!-- Recommended for automation: Process -->
+            <Scopes>
+                <Scope>User.Read.All</Scope>
+                <Scope>Organization.Read.All</Scope>
+            </Scopes>
+        </Service>
+
+        <!-- 2. Certificate -->
+        <Service Name="Graph">
+            <Enabled>false</Enabled>
+            <AuthMethod>Certificate</AuthMethod>
+            <TenantId>contoso.onmicrosoft.com</TenantId>
+            <ClientId>00000000-0000-0000-0000-000000000000</ClientId>
+            <CertificateThumbprint>A1B2C3D4...</CertificateThumbprint>
+            <Environment>Global</Environment>
+            <ContextScope>Process</ContextScope>
+        </Service>
+
+        <!-- 3. Client Secret -->
+        <Service Name="Graph">
+            <Enabled>false</Enabled>
+            <AuthMethod>ClientSecret</AuthMethod>
+            <TenantId>contoso.onmicrosoft.com</TenantId>
+            <ClientId>00000000-0000-0000-0000-000000000000</ClientId>
+            <ClientSecret>YourSecretValueHere</ClientSecret>
+            <ContextScope>Process</ContextScope>
+            <Scopes>
+                <Scope>https://graph.microsoft.com/.default</Scope>
+            </Scopes>
+        </Service>
+
+        <!-- 4. Managed Identity (User Assigned) -->
+        <Service Name="Graph">
+            <Enabled>false</Enabled>
+            <AuthMethod>ManagedIdentity</AuthMethod>
+            <ContextScope>Process</ContextScope>
+            <IdentityClientId>USER-ASSIGNED-IDENTITY-CLIENT-ID</IdentityClientId> 
+        </Service>
+
+        <!-- ========================================================= -->
+        <!-- AZURE (Az) EXAMPLES                                       -->
+        <!-- ========================================================= -->
+
+        <!-- 1. Interactive -->
+        <Service Name="Az">
+            <Enabled>false</Enabled>
+            <AuthMethod>Interactive</AuthMethod>
+            <TenantId>contoso.onmicrosoft.com</TenantId>
+            <SubscriptionId>00000000-0000-0000-0000-000000000000</SubscriptionId>
+        </Service>
+
+        <!-- 2. Client Secret (Service Principal) -->
+        <Service Name="Az">
+            <Enabled>false</Enabled>
+            <AuthMethod>ClientSecret</AuthMethod>
+            <TenantId>contoso.onmicrosoft.com</TenantId>
+            <ClientId>00000000-0000-0000-0000-000000000000</ClientId>
+            <ClientSecret>YourSecretValueHere</ClientSecret>
+            <SubscriptionId>00000000-0000-0000-0000-000000000000</SubscriptionId>
+        </Service>
+
+        <!-- 3. Certificate -->
+        <Service Name="Az">
+            <Enabled>false</Enabled>
+            <AuthMethod>Certificate</AuthMethod>
+            <TenantId>contoso.onmicrosoft.com</TenantId>
+            <ClientId>00000000-0000-0000-0000-000000000000</ClientId>
+            <CertificateThumbprint>A1B2C3D4...</CertificateThumbprint>
+             <SubscriptionId>00000000-0000-0000-0000-000000000000</SubscriptionId>
+        </Service>
+        
+    </Services>
+</Configuration>
