@@ -1,0 +1,285 @@
+<#
+.SYNOPSIS
+    File-based structured logging for the M365 permissions sync solution.
+
+.DESCRIPTION
+    Each process that calls Initialize-Logging gets its own log file.
+    Log file name format: {ProcessName}_{yyyy-MM-dd_HH-mm-ss}.log
+
+    Every log line is written to:
+      1. The process-specific log file on disk
+      2. The console (host) for interactive/task-scheduler visibility
+
+    Log rotation: Remove-OldLogFiles deletes files older than RetentionDays.
+    Call this at the end of each script execution.
+
+.NOTES
+    No external dependencies.
+    Imported by every script as the first module after ConfigHelpers.
+#>
+
+# ──────────────────────────────────────────────────────────────
+# Module-scoped state
+# ──────────────────────────────────────────────────────────────
+
+$script:LogFilePath    = $null
+$script:LogDirectory   = $null
+$script:ProcessName    = $null
+$script:RetentionDays  = 30
+$script:LogLevel       = 'Info'
+
+# ──────────────────────────────────────────────────────────────
+# Public: Initialize-Logging
+# Must be called once at the start of each script.
+# Creates the log directory if it doesn't exist.
+# Opens the process-specific log file.
+# ──────────────────────────────────────────────────────────────
+
+function Initialize-Logging {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [object]$Config,
+        [Parameter(Mandatory)] [string]$ProcessName
+    )
+
+    $script:ProcessName   = $ProcessName
+    $script:LogDirectory  = $Config.Logging.Directory
+    $script:RetentionDays = [int]($Config.Logging.RetentionDays ?? 30)
+    $script:LogLevel      = $Config.Logging.Level ?? 'Info'
+
+    # Create log directory if it doesn't exist
+    if (-not (Test-Path $script:LogDirectory)) {
+        New-Item -ItemType Directory -Path $script:LogDirectory -Force | Out-Null
+    }
+
+    # Build the log file name: ProcessName_yyyy-MM-dd_HH-mm-ss.log
+    $timestamp          = Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'
+    $logFileName        = "${ProcessName}_${timestamp}.log"
+    $script:LogFilePath = Join-Path $script:LogDirectory $logFileName
+
+    # Write header to log file
+    $header = @"
+================================================================================
+  M365 Permissions Sync — Log File
+  Process  : $ProcessName
+  Started  : $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') UTC
+  Host     : $($env:COMPUTERNAME)
+  User     : $($env:USERNAME)
+  Log File : $($script:LogFilePath)
+================================================================================
+
+"@
+    Add-Content -Path $script:LogFilePath -Value $header -Encoding UTF8
+
+    Write-LogInfo "Logging initialised — log file: $($script:LogFilePath)"
+}
+
+# ──────────────────────────────────────────────────────────────
+# Public: Write-LogInfo
+# ──────────────────────────────────────────────────────────────
+
+function Write-LogInfo {
+    [CmdletBinding()]
+    param([Parameter(Mandatory, Position=0)] [string]$Message)
+
+    Write-LogEntry -Level 'INFO ' -Message $Message -ConsoleColor Cyan
+}
+
+# ──────────────────────────────────────────────────────────────
+# Public: Write-LogWarning
+# ──────────────────────────────────────────────────────────────
+
+function Write-LogWarning {
+    [CmdletBinding()]
+    param([Parameter(Mandatory, Position=0)] [string]$Message)
+
+    Write-LogEntry -Level 'WARN ' -Message $Message -ConsoleColor Yellow
+}
+
+# ──────────────────────────────────────────────────────────────
+# Public: Write-LogError
+# ──────────────────────────────────────────────────────────────
+
+function Write-LogError {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory, Position=0)] [string]$Message,
+        [System.Management.Automation.ErrorRecord]$ErrorRecord
+    )
+
+    $full = if ($ErrorRecord) {
+        "$Message | Exception: $($ErrorRecord.Exception.Message)"
+    } else {
+        $Message
+    }
+
+    Write-LogEntry -Level 'ERROR' -Message $full -ConsoleColor Red
+}
+
+# ──────────────────────────────────────────────────────────────
+# Public: Write-LogSection
+# Writes a visible section separator to the log — useful for
+# marking the start of a major phase within a script.
+# ──────────────────────────────────────────────────────────────
+
+function Write-LogSection {
+    [CmdletBinding()]
+    param([Parameter(Mandatory, Position=0)] [string]$Title)
+
+    $line = "─── $Title " + ("─" * [Math]::Max(1, 60 - $Title.Length))
+    Write-LogEntry -Level 'INFO ' -Message $line -ConsoleColor Cyan
+}
+
+# ──────────────────────────────────────────────────────────────
+# Public: Invoke-LoggedPhase
+# Wraps a script block, logs start/end and duration.
+# Returns the result of the script block.
+# ──────────────────────────────────────────────────────────────
+
+function Invoke-LoggedPhase {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [string]$Name,
+        [Parameter(Mandatory)] [scriptblock]$ScriptBlock
+    )
+
+    Write-LogInfo "Phase [$Name] starting"
+    $sw = [System.Diagnostics.Stopwatch]::StartNew()
+
+    try {
+        $result = & $ScriptBlock
+        $sw.Stop()
+        Write-LogInfo "Phase [$Name] completed in $([Math]::Round($sw.Elapsed.TotalSeconds, 2))s"
+        return $result
+    }
+    catch {
+        $sw.Stop()
+        Write-LogError "Phase [$Name] FAILED after $([Math]::Round($sw.Elapsed.TotalSeconds, 2))s" -ErrorRecord $_
+        throw
+    }
+}
+
+# ──────────────────────────────────────────────────────────────
+# Public: Write-LogSummary
+# Writes a structured results summary block at the end of a run.
+# ──────────────────────────────────────────────────────────────
+
+function Write-LogSummary {
+    [CmdletBinding()]
+    param([hashtable]$Metrics)
+
+    $lines = @("", "── Run Summary " + ("─" * 47))
+    foreach ($k in $Metrics.Keys) {
+        $lines += "  {0,-30} {1}" -f $k, $Metrics[$k]
+    }
+    $lines += "─" * 61
+    $lines += ""
+
+    foreach ($line in $lines) {
+        Write-LogEntry -Level 'INFO ' -Message $line -ConsoleColor Green
+    }
+}
+
+# ──────────────────────────────────────────────────────────────
+# Public: Close-Logging
+# Writes the closing footer to the log file.
+# Call at the very end of each script (success or failure).
+# ──────────────────────────────────────────────────────────────
+
+function Close-Logging {
+    [CmdletBinding()]
+    param([string]$Status = "Completed")
+
+    $footer = @"
+
+================================================================================
+  Status   : $Status
+  Finished : $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') UTC
+================================================================================
+"@
+
+    if ($script:LogFilePath -and (Test-Path (Split-Path $script:LogFilePath))) {
+        Add-Content -Path $script:LogFilePath -Value $footer -Encoding UTF8
+    }
+    Write-Host $footer -ForegroundColor Cyan
+}
+
+# ──────────────────────────────────────────────────────────────
+# Public: Remove-OldLogFiles
+# Deletes log files older than RetentionDays in the log directory.
+# Call once per script execution, typically at the end.
+# ──────────────────────────────────────────────────────────────
+
+function Remove-OldLogFiles {
+    [CmdletBinding()]
+    param()
+
+    if (-not $script:LogDirectory -or -not (Test-Path $script:LogDirectory)) {
+        return
+    }
+
+    $cutoff  = (Get-Date).AddDays(-$script:RetentionDays)
+    $deleted = 0
+
+    Get-ChildItem -Path $script:LogDirectory -Filter '*.log' | Where-Object {
+        $_.LastWriteTime -lt $cutoff
+    } | ForEach-Object {
+        try {
+            Remove-Item $_.FullName -Force
+            $deleted++
+        }
+        catch {
+            Write-LogWarning "Could not delete old log file $($_.Name): $($_.Exception.Message)"
+        }
+    }
+
+    if ($deleted -gt 0) {
+        Write-LogInfo "Log rotation: removed $deleted file(s) older than $($script:RetentionDays) days"
+    }
+}
+
+# ──────────────────────────────────────────────────────────────
+# Private: Write-LogEntry
+# Core write function — sends to log file and console.
+# ──────────────────────────────────────────────────────────────
+
+function Write-LogEntry {
+    param(
+        [string]$Level,
+        [string]$Message,
+        [System.ConsoleColor]$ConsoleColor = [System.ConsoleColor]::White
+    )
+
+    $ts   = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $line = "$ts [$Level] $Message"
+
+    # Write to log file
+    if ($script:LogFilePath) {
+        try {
+            Add-Content -Path $script:LogFilePath -Value $line -Encoding UTF8
+        }
+        catch {
+            # If file write fails, don't crash the script — just warn on console
+            Write-Host "[LOG WRITE FAILED] $line" -ForegroundColor Red
+        }
+    }
+
+    # Write to console
+    Write-Host $line -ForegroundColor $ConsoleColor
+}
+
+# ──────────────────────────────────────────────────────────────
+# Exports
+# ──────────────────────────────────────────────────────────────
+
+Export-ModuleMember -Function @(
+    'Initialize-Logging',
+    'Write-LogInfo',
+    'Write-LogWarning',
+    'Write-LogError',
+    'Write-LogSection',
+    'Invoke-LoggedPhase',
+    'Write-LogSummary',
+    'Close-Logging',
+    'Remove-OldLogFiles'
+)
