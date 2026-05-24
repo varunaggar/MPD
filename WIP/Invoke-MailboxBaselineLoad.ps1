@@ -60,9 +60,16 @@ Import-Module (Join-Path $sharedPath "ExoHelpers.psm1")     -Force
 # Configuration and logging
 # ──────────────────────────────────────────────────────────────
 
-$Config = Import-SyncConfig -Path $ConfigPath
-
-Initialize-Logging -Config $Config -ProcessName $scriptName
+try {
+    $Config = Import-SyncConfig -Path $ConfigPath
+    Initialize-Logging -Config $Config -ProcessName $scriptName
+}
+catch {
+    Write-Host "FATAL BOOTSTRAP ERROR in $scriptName" -ForegroundColor Red
+    Write-Host "Location: $($_.InvocationInfo.ScriptName) Line: $($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Yellow
+    Write-Host "Message : $($_.Exception.Message)" -ForegroundColor White
+    exit 1
+}
 
 Write-LogSection "Invoke-MailboxBaselineLoad"
 Write-LogInfo "Config       : $ConfigPath"

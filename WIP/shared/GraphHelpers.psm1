@@ -42,8 +42,8 @@ function Initialize-GraphContext {
     # Reset token cache so any previous session token is not reused
     $script:TokenCache.Token     = $null
     $script:TokenCache.ExpiresAt = [datetime]::MinValue
-
-    Write-Verbose "Graph context initialised (BaseUrl=$($Config.Graph.BaseUrl))"
+    
+    Write-LogInfo "Graph context initialised (BaseUrl=$($Config.Graph.BaseUrl))"
 }
 
 # ──────────────────────────────────────────────────────────────
@@ -62,11 +62,11 @@ function Get-GraphToken {
     if (-not $ForceRefresh -and
         $script:TokenCache.Token -and
         $script:TokenCache.ExpiresAt -gt $now.AddMinutes(2)) {
-        Write-Verbose "Returning cached Graph token (expires $($script:TokenCache.ExpiresAt))"
+        # Silence frequent cache hits to keep logs clean
         return $script:TokenCache.Token
     }
 
-    Write-Verbose "Acquiring new Graph token via service principal context"
+    Write-LogInfo "Acquiring Graph access token..."
 
     try {
         $tokenInfo = Get-AzAccessToken `
@@ -76,8 +76,8 @@ function Get-GraphToken {
         $script:TokenCache.Token     = $tokenInfo.Token
         # Expire 10 minutes early as a safety margin
         $script:TokenCache.ExpiresAt = $tokenInfo.ExpiresOn.UtcDateTime.AddMinutes(-10)
-
-        Write-Verbose "Graph token acquired. Valid until $($script:TokenCache.ExpiresAt) UTC"
+        
+        Write-LogInfo "Graph token acquired. Valid until $($script:TokenCache.ExpiresAt) UTC" 
         return $tokenInfo.Token
     }
     catch {
@@ -137,6 +137,20 @@ function Invoke-GraphRequest {
         catch {
             $statusCode = $null
             try { $statusCode = [int]$_.Exception.Response.StatusCode } catch {}
+            
+            # Attempt to extract the actual Graph error message from the response body
+            $apiErrorMessage = ""
+            try {
+                $responseStream = $_.Exception.Response.GetResponseStream()
+                if ($null -ne $responseStream) {
+                    $reader = New-Object System.IO.StreamReader($responseStream)
+                    $responseBody = $reader.ReadToEnd()
+                    # Basic regex to pull the 'message' field from Graph's error JSON
+                    if ($responseBody -match '"message":"([^"]+)"') {
+                        $apiErrorMessage = " | API Message: $($Matches[1])"
+                    }
+                }
+            } catch {}
 
             # 429 — throttled
             if ($statusCode -eq 429) {
@@ -146,7 +160,10 @@ function Invoke-GraphRequest {
                     if ($h) { $wait = [int]$h }
                 } catch {}
                 $wait = [Math]::Min($wait, $throttleMax)
-                Write-Warning "Graph throttled (429). Waiting ${wait}s before retry $attempt/$MaxRetries"
+                
+                $logMsg = "Graph throttled (429). Waiting ${wait}s before retry $attempt/$MaxRetries$apiErrorMessage"
+                Write-LogWarning $logMsg
+                
                 Start-Sleep -Seconds $wait
                 $lastError = $_
                 continue
@@ -154,7 +171,9 @@ function Invoke-GraphRequest {
 
             # 401 — force token refresh once
             if ($statusCode -eq 401 -and $attempt -eq 1) {
-                Write-Warning "Graph returned 401 on attempt $attempt. Refreshing token and retrying."
+                $logMsg = "Graph returned 401. Refreshing token and retrying...$apiErrorMessage"
+                Write-LogWarning $logMsg
+                
                 Get-GraphToken -ForceRefresh | Out-Null
                 $lastError = $_
                 continue
@@ -163,7 +182,10 @@ function Invoke-GraphRequest {
             # 5xx — transient server error, exponential backoff
             if ($statusCode -ge 500 -and $statusCode -le 599) {
                 $wait = [Math]::Min([Math]::Pow(2, $attempt), 60)
-                Write-Warning "Graph returned $statusCode. Waiting ${wait}s before retry $attempt/$MaxRetries"
+                
+                $logMsg = "Graph returned $statusCode. Waiting ${wait}s before retry $attempt/$MaxRetries$apiErrorMessage"
+                Write-LogWarning $logMsg
+                
                 Start-Sleep -Seconds $wait
                 $lastError = $_
                 continue
@@ -177,7 +199,11 @@ function Invoke-GraphRequest {
         }
     }
 
-    throw "Invoke-GraphRequest ($Method) failed after $MaxRetries attempts. URI: $Uri | Error: $($lastError.Exception.Message)"
+    $finalError = "Invoke-GraphRequest ($Method) failed after $MaxRetries attempts. URI: $Uri | Error: $($lastError.Exception.Message)"
+    # Include API message in the final throw if we found one
+    if ($apiErrorMessage) { $finalError += $apiErrorMessage }
+    
+    throw $finalError
 }
 
 # ──────────────────────────────────────────────────────────────
@@ -198,7 +224,7 @@ function Invoke-GraphPagedRequest {
 
     do {
         $page++
-        Write-Verbose "Fetching page $page from Graph"
+        Write-LogInfo "Fetching page $page from Graph..."
 
         $response = Invoke-GraphRequest -Uri $currentUri
 
@@ -209,7 +235,7 @@ function Invoke-GraphPagedRequest {
         $currentUri = $response.'@odata.nextLink'
     } while ($currentUri)
 
-    Write-Verbose "Paged request complete: $page pages, $($allObjects.Count) total objects"
+    Write-LogInfo "Paged request complete: $page pages, $($allObjects.Count) total objects"
     return $allObjects.ToArray()
 }
 
@@ -240,7 +266,7 @@ function Invoke-GraphDeltaQuery {
     try {
         do {
             $page++
-            Write-Verbose "Fetching delta page $page"
+            Write-LogInfo "Fetching delta page $page..."
 
             $response = Invoke-GraphRequest -Uri $currentUri
 
@@ -265,7 +291,7 @@ function Invoke-GraphDeltaQuery {
             throw "Delta query completed $page pages but no @odata.deltaLink was returned"
         }
 
-        Write-Verbose "Delta query complete: $page pages, $($allObjects.Count) changed objects"
+        Write-LogInfo "Delta query complete: $page pages, $($allObjects.Count) changed objects" 
 
         return @{
             Objects      = $allObjects.ToArray()
@@ -279,7 +305,9 @@ function Invoke-GraphDeltaQuery {
         try { $statusCode = [int]$_.Exception.Response.StatusCode } catch {}
 
         if ($statusCode -eq 410) {
-            Write-Warning "Delta token expired (HTTP 410 Gone). Re-initialisation required."
+            $msg = "Delta token expired (HTTP 410 Gone). Re-initialisation required."
+            Write-LogWarning $msg
+            
             return @{
                 Objects      = @()
                 DeltaLink    = $null

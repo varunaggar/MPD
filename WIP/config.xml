@@ -16,37 +16,36 @@
       3. Copy the thumbprint into CertificateThumbprint below.
 -->
 <M365PermsSyncConfig>
-
-  <!-- General -->
   <General>
-    <Environment>prod</Environment>
-    <Organisation>REPLACE-WITH-ORG-NAME</Organisation>
+    <Environment>ENG</Environment>
+    <Organisation>x7m2c.onmicrosoft.com</Organisation>
   </General>
-
-  <!-- Entra / Azure authentication -->
   <Authentication>
-    <!-- Entra tenant GUID -->
-    <TenantId>REPLACE-WITH-TENANT-GUID</TenantId>
+    <!-- Authentication mode: Certificate | Secret | ManagedIdentity | User -->
+    <AuthType>Certificate</AuthType>
 
-    <!-- App registration that has User.Read.All on Microsoft Graph
-         and is an EXTERNAL PROVIDER user on the SQL database -->
-    <AppId>REPLACE-WITH-APP-REGISTRATION-GUID</AppId>
+    <TenantId>086b944f-0278-4374-8dfe-305c4b5d1d70</TenantId>
+    <AppId>f2a1282c-a035-4e4b-b16d-789f1d5bc2c7</AppId>
 
-    <!-- Thumbprint of the certificate installed in the cert store below.
-         Run: Get-ChildItem Cert:\LocalMachine\My | Select Subject,Thumbprint -->
-    <CertificateThumbprint>REPLACE-WITH-40-CHAR-THUMBPRINT</CertificateThumbprint>
-
-    <!-- Windows certificate store location: LocalMachine or CurrentUser -->
+    <!-- Certificate auth -->
+    <CertificateThumbprint>REPLACE-WITH-CERT-THUMBPRINT</CertificateThumbprint>
     <CertificateStoreLocation>LocalMachine</CertificateStoreLocation>
-
-    <!-- Store name — My = Personal, defaults to My -->
     <CertificateStoreName>My</CertificateStoreName>
+
+    <!-- Secret auth -->
+    <ClientSecret></ClientSecret>
+
+    <!-- Managed identity auth (optional user-assigned client id) -->
+    <ManagedIdentityClientId></ManagedIdentityClientId>
+
+    <!-- User auth (optional UPN for interactive login) -->
+    <UserPrincipalName></UserPrincipalName>
   </Authentication>
 
   <!-- Azure SQL Database -->
   <Database>
     <!-- Fully-qualified Azure SQL server hostname -->
-    <Server>REPLACE-sql-m365perms-prod.database.windows.net</Server>
+    <Server>m365perms-prod.database.windows.net</Server>
 
     <!-- Database name -->
     <Name>db-m365permissions</Name>
@@ -60,13 +59,19 @@
   <Logging>
     <!-- Directory where log files are written.
          The service account running the scheduled task must have Write access. -->
-    <Directory>C:\M365PermSync\Logs</Directory>
+    <Directory></Directory>
 
     <!-- How many days to keep log files before automatic deletion -->
     <RetentionDays>30</RetentionDays>
 
     <!-- Log level: Info | Warning | Error -->
     <Level>Info</Level>
+
+    <!-- Windows Event Log integration -->
+    <!-- Set LogToEventLog to true to write log entries to the Application event log -->
+    <LogToEventLog>false</LogToEventLog>
+    <!-- The source name used in the Event Log. Must be registered on the system. -->
+    <EventSource>M365PermSync</EventSource>
   </Logging>
 
   <!-- Microsoft Graph API -->
@@ -89,7 +94,7 @@
     <!-- Your tenant's .onmicrosoft.com primary domain.
          Required by Connect-ExchangeOnline certificate auth.
          Find in: Microsoft 365 admin centre → Settings → Domains -->
-    <Organisation>REPLACE-WITH-TENANT.onmicrosoft.com</Organisation>
+    <Organisation>x7m2c.onmicrosoft.com</Organisation>
 
     <!-- Mailbox types to collect. Comma-separated.
          Valid values: UserMailbox, SharedMailbox, RoomMailbox, EquipmentMailbox -->
@@ -106,5 +111,12 @@
          to ensure overlap and no missed changes. -->
     <DeltaOverlapMinutes>30</DeltaOverlapMinutes>
   </Sync>
+
+  <!-- Dependencies -->
+  <Dependencies>
+    <!-- Modules required to be present in the local \Modules folder -->
+    <Module Name="Az.Accounts" MinimumVersion="3.0.0" />
+    <Module Name="ExchangeOnlineManagement" MinimumVersion="3.4.0" />
+  </Dependencies>
 
 </M365PermsSyncConfig>

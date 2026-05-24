@@ -54,14 +54,20 @@ Import-Module (Join-Path $sharedPath "SqlHelpers.psm1")     -Force
 # Load configuration
 # ──────────────────────────────────────────────────────────────
 
-$Config = Import-SyncConfig -Path $ConfigPath
+try {
+    $Config = Import-SyncConfig -Path $ConfigPath
 
-# ──────────────────────────────────────────────────────────────
-# Initialise logging
-# Log file: Logs\Invoke-UserDeltaSync_yyyy-MM-dd_HH-mm-ss.log
-# ──────────────────────────────────────────────────────────────
-
-Initialize-Logging -Config $Config -ProcessName $scriptName
+    # ──────────────────────────────────────────────────────────────
+    # Initialise logging
+    # ──────────────────────────────────────────────────────────────
+    Initialize-Logging -Config $Config -ProcessName $scriptName
+}
+catch {
+    Write-Host "FATAL BOOTSTRAP ERROR in $scriptName" -ForegroundColor Red
+    Write-Host "Location: $($_.InvocationInfo.ScriptName) Line: $($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Yellow
+    Write-Host "Message : $($_.Exception.Message)" -ForegroundColor White
+    exit 1
+}
 
 Write-LogSection "Invoke-UserDeltaSync"
 Write-LogInfo "Config   : $ConfigPath"

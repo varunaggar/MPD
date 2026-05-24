@@ -46,19 +46,26 @@ Import-Module (Join-Path $sharedPath "ConfigHelpers.psm1")  -Force
 Import-Module (Join-Path $sharedPath "LoggingHelpers.psm1") -Force
 Import-Module (Join-Path $sharedPath "GraphHelpers.psm1")   -Force
 Import-Module (Join-Path $sharedPath "SqlHelpers.psm1")     -Force
+Import-Module (Join-Path $sharedPath "DependencyHelpers.psm1") -Force
 
 # ──────────────────────────────────────────────────────────────
 # Load configuration
 # ──────────────────────────────────────────────────────────────
 
-$Config = Import-SyncConfig -Path $ConfigPath
+try {
+    $Config = Import-SyncConfig -Path $ConfigPath
 
-# ──────────────────────────────────────────────────────────────
-# Initialise logging
-# Log file: Logs\Invoke-UserBaselineLoad_yyyy-MM-dd_HH-mm-ss.log
-# ──────────────────────────────────────────────────────────────
-
-Initialize-Logging -Config $Config -ProcessName $scriptName
+    # ──────────────────────────────────────────────────────────────
+    # Initialise logging
+    # ──────────────────────────────────────────────────────────────
+    Initialize-Logging -Config $Config -ProcessName $scriptName
+}
+catch {
+    Write-Host "FATAL BOOTSTRAP ERROR in $scriptName" -ForegroundColor Red
+    Write-Host "Location: $($_.InvocationInfo.ScriptName) Line: $($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Yellow
+    Write-Host "Message : $($_.Exception.Message)" -ForegroundColor White
+    exit 1
+}
 
 Write-LogSection "Invoke-UserBaselineLoad"
 Write-LogInfo "Script   : $scriptName"
@@ -67,6 +74,14 @@ Write-LogInfo "Server   : $($Config.Database.Server)"
 Write-LogInfo "Database : $($Config.Database.Name)"
 Write-LogInfo "AppId    : $($Config.Authentication.AppId)"
 Write-LogInfo "Tenant   : $($Config.Authentication.TenantId)"
+
+# ──────────────────────────────────────────────────────────────
+# Validate local dependencies
+# ──────────────────────────────────────────────────────────────
+
+Write-LogSection "Dependency Validation"
+Initialize-ModuleDependencies -Config $Config
+
 
 # ──────────────────────────────────────────────────────────────
 # Authenticate to Azure and initialise helper contexts

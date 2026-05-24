@@ -1,0 +1,14 @@
+================================================================================
+  M365 Permissions Sync — Log File
+  Process  : Invoke-UserBaselineLoad
+  Started  : 2026-05-24 14:34:15 UTC
+  Host     : 
+  User     : 
+  Log File : /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserBaselineLoad_2026-05-24_14-34-15.log
+================================================================================
+
+2026-05-24 14:34:15 [INFO ] Logging initialised — log file: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserBaselineLoad_2026-05-24_14-34-15.log
+2026-05-24 14:34:15 [INFO ] ─── Dependency Validation ───────────────────────────────────────
+2026-05-24 14:34:15 [INFO ] Validating required dependencies in local folder: /Users/varunaggarwal/Documents/MPD-ENG/WIP/Modules
+2026-05-24 14:34:15 [INFO ] Checking dependency: Az.Accounts (>= 3.0.0)
+2026-05-24 14:34:15 [ERROR] Fatal: Module 'Az.Accounts' with version >= '3.0.0' was not found in '/Users/varunaggarwal/Documents/MPD-ENG/WIP/Modules'.

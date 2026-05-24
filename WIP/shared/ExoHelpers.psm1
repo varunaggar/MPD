@@ -88,7 +88,7 @@ function Initialize-ExoContext {
               "Run: Install-Module ExchangeOnlineManagement -Scope AllUsers -Force"
     }
 
-    Write-Verbose "EXO context initialised (Organisation=$org)"
+    Write-LogInfo "EXO context initialised (Organisation=$org)"
 }
 
 # ──────────────────────────────────────────────────────────────
@@ -104,12 +104,13 @@ function Connect-ExoSession {
     )
 
     if ($script:IsConnected) {
-        Write-Verbose "EXO session already connected"
         return
     }
 
+    Write-LogInfo "Connecting to Exchange Online..."
+
     $appId      = $Config.Authentication.AppId
-    $thumbprint = $Config.Authentication.CertificateThumbprint
+    $thumbprint = $Config.Authentication.CertificateThumbprint.Replace(" ", "").Trim()
     $storeLoc   = $Config.Authentication.CertificateStoreLocation
     $org        = $Config.ExchangeOnline.Organisation
 
@@ -130,11 +131,13 @@ function Connect-ExoSession {
             -ErrorAction            Stop
 
         $script:IsConnected = $true
-        Write-Verbose "Connected to Exchange Online (org=$org)"
+        Write-LogInfo "Successfully connected to Exchange Online session (Org: $org)"
     }
     catch {
         $script:IsConnected = $false
-        throw "Failed to connect to Exchange Online: $($_.Exception.Message)"
+        $errMsg = "Failed to connect to Exchange Online: $($_.Exception.Message)"
+        Write-LogError $errMsg -ErrorRecord $_
+        throw $errMsg
     }
 }
 
@@ -152,10 +155,10 @@ function Disconnect-ExoSession {
 
     try {
         Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyContinue
-        Write-Verbose "Disconnected from Exchange Online"
+        Write-LogInfo "Disconnected from Exchange Online session."
     }
     catch {
-        Write-Warning "EXO disconnect encountered an error: $($_.Exception.Message)"
+        Write-LogWarning "EXO disconnect encountered an error: $($_.Exception.Message)"
     }
     finally {
         $script:IsConnected = $false
@@ -176,7 +179,7 @@ function Get-AllExoMailboxes {
     )
 
     $types  = $Config.ExchangeOnline.MailboxTypes -split ',' | ForEach-Object { $_.Trim() }
-    Write-Verbose "Fetching all mailboxes of types: $($types -join ', ')"
+    Write-LogInfo "Fetching all mailboxes of types: $($types -join ', ')..."
 
     try {
         $raw = Get-EXOMailbox `
@@ -185,7 +188,7 @@ function Get-AllExoMailboxes {
             -ErrorAction Stop |
             Where-Object { $_.RecipientTypeDetails -in $types }
 
-        Write-Verbose "EXO returned $($raw.Count) mailboxes"
+        Write-LogInfo "EXO returned $($raw.Count) mailboxes"
         return $raw | ForEach-Object { ConvertTo-MailboxObject $_ }
     }
     catch {
@@ -212,7 +215,7 @@ function Get-ChangedExoMailboxes {
     $filterValue = $SinceUtc.ToString('MM/dd/yyyy HH:mm:ss')
     $filter      = "WhenChangedUTC -ge '$filterValue'"
 
-    Write-Verbose "Fetching changed mailboxes since $filterValue UTC"
+    Write-LogInfo "Fetching changed mailboxes since $filterValue UTC..."
 
     try {
         # ── Active mailboxes that changed ─────────────────────
@@ -246,7 +249,7 @@ function Get-ChangedExoMailboxes {
             }
 
         $all = @($active) + @($softDeleted)
-        Write-Verbose "Delta found $($active.Count) changed + $($softDeleted.Count) soft-deleted mailboxes"
+        Write-LogInfo "Delta found $($active.Count) changed + $($softDeleted.Count) soft-deleted mailboxes"
         return $all
     }
     catch {
@@ -293,7 +296,7 @@ function ConvertTo-MailboxObject {
         MailboxType               = $mailboxType
         HiddenFromAddressLists    = if ($null -ne $Mailbox.HiddenFromAddressListsEnabled) { [bool]$Mailbox.HiddenFromAddressListsEnabled } else { $null }
         LitigationHoldEnabled     = if ($null -ne $Mailbox.LitigationHoldEnabled)         { [bool]$Mailbox.LitigationHoldEnabled }         else { $null }
-        ArchiveStatus             = $Mailbox.ArchiveStatus?.ToString()
+        ArchiveStatus             = if ($null -ne $Mailbox.ArchiveStatus) { $Mailbox.ArchiveStatus.ToString() } else { $null }
         ForwardingAddress         = $Mailbox.ForwardingAddress
         ForwardingSmtpAddress     = $Mailbox.ForwardingSmtpAddress
         GrantSendOnBehalfTo       = $grantSoB

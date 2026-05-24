@@ -1,0 +1,36 @@
+================================================================================
+  M365 Permissions Sync — Log File
+  Process  : Invoke-UserBaselineLoad
+  Started  : 2026-05-24 15:19:50 UTC
+  Host     : 
+  User     : 
+  Log File : /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserBaselineLoad_2026-05-24_15-19-50.log
+================================================================================
+
+2026-05-24 15:19:50 [INFO ] Logging initialised — log file: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserBaselineLoad_2026-05-24_15-19-50.log
+2026-05-24 15:19:50 [INFO ] ─── Invoke-UserBaselineLoad ─────────────────────────────────────
+2026-05-24 15:19:50 [INFO ] Script   : Invoke-UserBaselineLoad
+2026-05-24 15:19:50 [INFO ] Config   : /Users/varunaggarwal/Documents/MPD-ENG/WIP/config.xml
+2026-05-24 15:19:50 [INFO ] Server   : m365perms-prod.database.windows.net
+2026-05-24 15:19:50 [INFO ] Database : db-m365permissions
+2026-05-24 15:19:50 [INFO ] AppId    : f2a1282c-a035-4e4b-b16d-789f1d5bc2c7
+2026-05-24 15:19:50 [INFO ] Tenant   : 086b944f-0278-4374-8dfe-305c4b5d1d70
+2026-05-24 15:19:50 [INFO ] ─── Dependency Validation ───────────────────────────────────────
+2026-05-24 15:19:50 [INFO ] Validating required dependencies in local folder: /Users/varunaggarwal/Documents/MPD-ENG/WIP/Modules
+2026-05-24 15:19:50 [INFO ] Checking dependency: Az.Accounts (>= 3.0.0)
+2026-05-24 15:19:50 [INFO ] Successfully imported Az.Accounts version 5.4.1 from local path
+2026-05-24 15:19:50 [INFO ] Checking dependency: ExchangeOnlineManagement (>= 3.4.0)
+2026-05-24 15:19:50 [INFO ] Successfully imported ExchangeOnlineManagement version 3.9.2 from local path
+2026-05-24 15:19:50 [INFO ] All dependencies validated and loaded successfully.
+2026-05-24 15:19:50 [INFO ] ─── Authentication ──────────────────────────────────────────────
+2026-05-24 15:19:50 [INFO ] Establishing Azure connection (Tenant: 086b944f-0278-4374-8dfe-305c4b5d1d70, AppId: f2a1282c-a035-4e4b-b16d-789f1d5bc2c7)...
+2026-05-24 15:19:50 [ERROR] Authentication Certificate not found in store: Cert:\LocalMachine\My\12345
+2026-05-24 15:19:50 [STACK] at Connect-SyncServicePrincipal, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/ConfigHelpers.psm1: line 92
+at <ScriptBlock>, /Users/varunaggarwal/Documents/MPD-ENG/WIP/Invoke-UserBaselineLoad.ps1: line 93
+at <ScriptBlock>, <No file>: line 1
+2026-05-24 15:19:50 [ERROR] Authentication failed — cannot continue | Exception: Authentication Certificate not found in store: Cert:\LocalMachine\My\12345 [Source: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/ConfigHelpers.psm1 Line: 92]
+
+================================================================================
+  Status   : Failed
+  Finished : 2026-05-24 15:19:50 UTC
+================================================================================

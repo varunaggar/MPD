@@ -27,6 +27,8 @@ $script:LogDirectory   = $null
 $script:ProcessName    = $null
 $script:RetentionDays  = 30
 $script:LogLevel       = 'Info'
+$script:LogToEventLog  = $false
+$script:EventSource    = 'M365PermSync'
 
 # ──────────────────────────────────────────────────────────────
 # Public: Initialize-Logging
@@ -43,13 +45,31 @@ function Initialize-Logging {
     )
 
     $script:ProcessName   = $ProcessName
-    $script:LogDirectory  = $Config.Logging.Directory
-    $script:RetentionDays = if ($null -ne $Config.Logging.RetentionDays) { [int]$Config.Logging.RetentionDays } else { 30 }
-    $script:LogLevel      = if ($null -ne $Config.Logging.Level) { $Config.Logging.Level } else { 'Info' }
+
+    if ($null -ne $Config.Logging) {
+        # Correctly identify empty or whitespace tags to trigger fallback
+        $script:LogDirectory  = if (-not [string]::IsNullOrWhiteSpace([string]$Config.Logging.Directory)) { $Config.Logging.Directory } else { Join-Path $PSScriptRoot "..\logs" }
+        $script:RetentionDays = if ($null -ne $Config.Logging.RetentionDays) { [int]$Config.Logging.RetentionDays } else { 30 }
+        $script:LogLevel      = if ($null -ne $Config.Logging.Level) { $Config.Logging.Level } else { 'Info' }
+        $script:LogToEventLog = if ($null -ne $Config.Logging.LogToEventLog) { $Config.Logging.LogToEventLog -eq 'true' } else { $false }
+        $script:EventSource   = if ($null -ne $Config.Logging.EventSource) { $Config.Logging.EventSource } else { 'M365PermSync' }
+    } else {
+        # Fallback if the entire Logging section is missing
+        $script:LogDirectory  = Join-Path $PSScriptRoot "..\logs"
+        $script:RetentionDays = 30
+        $script:LogLevel      = 'Info'
+        $script:LogToEventLog = $false
+        $script:EventSource   = 'M365PermSync'
+    }
 
     # Create log directory if it doesn't exist
-    if (-not (Test-Path $script:LogDirectory)) {
-        New-Item -ItemType Directory -Path $script:LogDirectory -Force | Out-Null
+    try {
+        if (-not (Test-Path $script:LogDirectory)) {
+            New-Item -ItemType Directory -Path $script:LogDirectory -Force -ErrorAction Stop | Out-Null
+        }
+    }
+    catch {
+        throw "LoggingHelpers: Failed to create or access log directory at '$($script:LogDirectory)'. Error: $($_.Exception.Message)"
     }
 
     # Build the log file name: ProcessName_yyyy-MM-dd_HH-mm-ss.log
@@ -279,6 +299,18 @@ function Write-LogEntry {
             # If file write fails, don't crash the script — just warn on console
             Write-Host "[LOG WRITE FAILED] $line" -ForegroundColor Red
         }
+    }
+
+    # Write to Windows Event Log
+    if ($script:LogToEventLog) {
+        $entryType = switch ($Level.Trim()) {
+            'ERROR' { 'Error' }
+            'WARN'  { 'Warning' }
+            default { 'Information' }
+        }
+        try {
+            Write-EventLog -LogName 'Application' -Source $script:EventSource -EntryType $entryType -EventId 1000 -Message $Message -ErrorAction SilentlyContinue
+        } catch {}
     }
 
     # Write to console

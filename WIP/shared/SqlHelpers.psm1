@@ -56,7 +56,7 @@ function Initialize-SqlContext {
     $script:SqlTokenCache.Token     = $null
     $script:SqlTokenCache.ExpiresAt = [datetime]::MinValue
 
-    Write-Verbose "SQL context initialised (Server=$($script:SqlServer), DB=$($script:SqlDatabase))"
+    Write-LogInfo "SQL context initialised (Server=$($script:SqlServer), DB=$($script:SqlDatabase))"
 }
 
 # ──────────────────────────────────────────────────────────────
@@ -75,6 +75,8 @@ function Get-SqlAccessToken {
         return $script:SqlTokenCache.Token
     }
 
+    Write-LogInfo "Acquiring SQL access token..."
+
     try {
         $tokenInfo = Get-AzAccessToken `
             -ResourceUrl "https://database.windows.net/" `
@@ -83,11 +85,13 @@ function Get-SqlAccessToken {
         $script:SqlTokenCache.Token     = $tokenInfo.Token
         $script:SqlTokenCache.ExpiresAt = $tokenInfo.ExpiresOn.UtcDateTime.AddMinutes(-5)
 
-        Write-Verbose "SQL access token acquired. Valid until $($script:SqlTokenCache.ExpiresAt) UTC"
+        Write-LogInfo "SQL access token acquired (expires: $($script:SqlTokenCache.ExpiresAt) UTC)"
         return $tokenInfo.Token
     }
     catch {
-        throw "Failed to acquire SQL access token: $($_.Exception.Message)"
+        $errMsg = "Failed to acquire SQL access token: $($_.Exception.Message)"
+        Write-LogError $errMsg -ErrorRecord $_
+        throw $errMsg
     }
 }
 
@@ -152,7 +156,9 @@ function Invoke-SqlNonQuery {
         return $cmd.ExecuteNonQuery()
     }
     catch {
-        throw "Invoke-SqlNonQuery failed: $($_.Exception.Message)"
+        $errMsg = "Invoke-SqlNonQuery failed: $($_.Exception.Message)"
+        Write-LogError $errMsg -ErrorRecord $_
+        throw $errMsg
     }
     finally {
         if ($conn) { $conn.Close(); $conn.Dispose() }
@@ -184,7 +190,9 @@ function Invoke-SqlScalar {
         return if ($null -eq $result -or $result -is [System.DBNull]) { $null } else { $result }
     }
     catch {
-        throw "SQL scalar failed: $($_.Exception.Message)"
+        $errMsg = "SQL scalar failed: $($_.Exception.Message)"
+        Write-LogError $errMsg -ErrorRecord $_
+        throw $errMsg
     }
     finally {
         if ($conn) { $conn.Close(); $conn.Dispose() }
@@ -221,7 +229,9 @@ function Invoke-SqlQuery {
         return if ($ds.Tables.Count -eq 0) { @() } else { $ds.Tables[0] }
     }
     catch {
-        throw "SQL query failed: $($_.Exception.Message)"
+        $errMsg = "SQL query failed: $($_.Exception.Message)"
+        Write-LogError $errMsg -ErrorRecord $_
+        throw $errMsg
     }
     finally {
         if ($conn) { $conn.Close(); $conn.Dispose() }
@@ -264,7 +274,9 @@ function Invoke-SqlBatch {
     }
     catch {
         if ($tx) { try { $tx.Rollback() } catch {} }
-        throw "SQL batch failed: $($_.Exception.Message)"
+        $errMsg = "SQL batch failed: $($_.Exception.Message)"
+        Write-LogError $errMsg -ErrorRecord $_
+        throw $errMsg
     }
     finally {
         if ($tx)   { $tx.Dispose() }
@@ -292,6 +304,7 @@ VALUES (@RunId, @FunctionName, SYSUTCDATETIME(), 'Running')
         '@FunctionName' = $FunctionName
     } | Out-Null
 
+    Write-LogInfo "Sync log entry created (RunId: $runId)"
     return $runId
 }
 
@@ -337,6 +350,8 @@ WHERE RunId = @RunId
         '@ErrorMessage'= $ErrorMessage
         '@Token'       = $TokenAdvancedTo
     } | Out-Null
+
+    Write-LogInfo "Sync log entry updated with status: $Status"
 }
 
 # ──────────────────────────────────────────────────────────────

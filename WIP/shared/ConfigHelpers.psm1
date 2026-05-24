@@ -33,19 +33,23 @@ function Import-SyncConfig {
         [xml]$raw = Get-Content -Path $Path -Encoding UTF8 -ErrorAction Stop
         $cfg = $raw.M365PermsSyncConfig
 
-        # Validate mandatory placeholders have been replaced
-        $checks = @{
-            'Authentication.TenantId'            = $cfg.Authentication.TenantId
-            'Authentication.AppId'               = $cfg.Authentication.AppId
-            'Authentication.CertificateThumbprint' = $cfg.Authentication.CertificateThumbprint
-            'Database.Server'                    = $cfg.Database.Server
-            'Database.Name'                      = $cfg.Database.Name
-            'Logging.Directory'                  = $cfg.Logging.Directory
+        if ($null -eq $cfg) {
+            throw "Invalid configuration: Root element <M365PermsSyncConfig> not found in '$Path'."
         }
 
-        foreach ($field in $checks.GetEnumerator()) {
-            if ([string]::IsNullOrWhiteSpace($field.Value) -or $field.Value -like 'REPLACE-*') {
-                throw "config.xml: '$($field.Key)' has not been set. Replace the placeholder before running."
+        # Validate mandatory placeholders have been replaced
+        $requiredFields = @(
+            @{ Path = "Authentication.TenantId";            Value = $cfg.Authentication.TenantId }
+            @{ Path = "Authentication.AppId";               Value = $cfg.Authentication.AppId }
+            @{ Path = "Authentication.CertificateThumbprint"; Value = $cfg.Authentication.CertificateThumbprint }
+            @{ Path = "Database.Server";                    Value = $cfg.Database.Server }
+            @{ Path = "Database.Name";                      Value = $cfg.Database.Name }
+            #@{ Path = "Logging.Directory";                  Value = $cfg.Logging.Directory }
+        )
+
+        foreach ($field in $requiredFields) {
+            if ([string]::IsNullOrWhiteSpace($field.Value) -or $field.Value -match "^REPLACE-") {
+                throw "Configuration error: The field '$($field.Path)' is missing or contains a placeholder. Please update config.xml."
             }
         }
 
@@ -70,20 +74,26 @@ function Connect-SyncServicePrincipal {
         [object]$Config
     )
 
-    $thumbprint = $Config.Authentication.CertificateThumbprint
+    # Sanitize thumbprint (remove spaces/newlines often introduced by copy-paste)
+    $thumbprint = $Config.Authentication.CertificateThumbprint.Replace(" ", "").Trim()
+    
     $appId      = $Config.Authentication.AppId
     $tenantId   = $Config.Authentication.TenantId
     $storeLoc   = $Config.Authentication.CertificateStoreLocation
     $storeName  = $Config.Authentication.CertificateStoreName
 
+    Write-LogInfo "Establishing Azure connection (Tenant: $tenantId, AppId: $appId)..."
+
     # Verify certificate is present in the store before attempting auth
     $certPath = "Cert:\$storeLoc\$storeName\$thumbprint"
     if (-not (Test-Path $certPath)) {
-        throw "Certificate with thumbprint '$thumbprint' not found in $certPath. " +
-              "Ensure the certificate is installed on this server."
+        $errMsg = "Authentication Certificate not found in store: $certPath"
+        Write-LogError $errMsg
+        throw $errMsg
     }
 
     try {
+        # Connect-AzAccount requires the Az.Accounts module
         Connect-AzAccount `
             -ServicePrincipal `
             -ApplicationId $appId `
@@ -92,10 +102,12 @@ function Connect-SyncServicePrincipal {
             -CertificateStoreLocation $storeLoc `
             -ErrorAction Stop | Out-Null
 
-        Write-Verbose "Connected to Azure as service principal (AppId=$appId)"
+        Write-LogInfo "Successfully authenticated to Azure as service principal."
     }
     catch {
-        throw "Failed to connect to Azure as service principal: $($_.Exception.Message)"
+        $errMsg = "Service Principal authentication failed: $($_.Exception.Message)"
+        Write-LogError $errMsg -ErrorRecord $_
+        throw $errMsg
     }
 }
 
