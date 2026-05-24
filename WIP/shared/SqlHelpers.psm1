@@ -28,6 +28,7 @@
 
 $script:SqlServer          = $null
 $script:SqlDatabase        = $null
+$script:SqlTargetTenantId  = $null
 $script:ConnectionTimeout  = 30
 $script:CommandTimeout     = 120
 
@@ -49,6 +50,7 @@ function Initialize-SqlContext {
 
     $script:SqlServer         = $Config.Database.Server
     $script:SqlDatabase       = $Config.Database.Name
+    $script:SqlTargetTenantId = $Config.Database.TargetTenantId
     $script:ConnectionTimeout = if ($null -ne $Config.Database.ConnectionTimeoutSec) { [int]$Config.Database.ConnectionTimeoutSec } else { 30 }
     $script:CommandTimeout    = if ($null -ne $Config.Database.CommandTimeoutSec) { [int]$Config.Database.CommandTimeoutSec } else { 120 }
 
@@ -72,20 +74,31 @@ function Get-SqlAccessToken {
     if (-not $ForceRefresh -and
         $script:SqlTokenCache.Token -and
         $script:SqlTokenCache.ExpiresAt -gt $now.AddMinutes(2)) {
+        Write-LogInfo "Using cached SQL access token (expires: $($script:SqlTokenCache.ExpiresAt) UTC)."
         return $script:SqlTokenCache.Token
     }
 
-    Write-LogInfo "Acquiring SQL access token..."
-
     try {
-        $tokenInfo = Get-AzAccessToken `
-            -ResourceUrl "https://database.windows.net/" `
-            -ErrorAction Stop
+        $tokenParams = @{
+            ResourceUrl = "https://database.windows.net/"
+            ErrorAction = "Stop"
+        }
+
+        $requestedTenant = "Default"
+        if (-not [string]::IsNullOrWhiteSpace($script:SqlTargetTenantId)) {
+            $tokenParams.TenantId = $script:SqlTargetTenantId
+            $requestedTenant = $script:SqlTargetTenantId
+        }
+
+        Write-LogInfo "Requesting fresh SQL access token. Resource: $($tokenParams.ResourceUrl) | Target Tenant: $requestedTenant"
+
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        $tokenInfo = Get-AzAccessToken @tokenParams
+        $sw.Stop()
 
         $script:SqlTokenCache.Token     = $tokenInfo.Token
         $script:SqlTokenCache.ExpiresAt = $tokenInfo.ExpiresOn.UtcDateTime.AddMinutes(-5)
-
-        Write-LogInfo "SQL access token acquired (expires: $($script:SqlTokenCache.ExpiresAt) UTC)"
+        #Wait-debugger
         return $tokenInfo.Token
     }
     catch {
@@ -425,6 +438,51 @@ WHERE TokenName = @Name
 }
 
 # ──────────────────────────────────────────────────────────────
+# Public: ConvertFrom-JwtToken
+# Decodes the payload of a JWT token without verifying the signature.
+# Useful for inspecting token claims (appid, roles, expiration).
+# ──────────────────────────────────────────────────────────────
+
+function ConvertFrom-JwtToken {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        $Token
+    )
+
+    $plainToken = $Token
+
+    # Decrypt if the input is a SecureString
+    if ($Token -is [System.Security.SecureString]) {
+        $plainToken = [System.Net.NetworkCredential]::new("", $Token).Password
+    }
+
+    if ([string]::IsNullOrWhiteSpace($plainToken)) { return $null }
+
+    $parts = $plainToken.Split('.')
+    if ($parts.Count -ne 3) {
+        throw "Invalid JWT token format. Expected 3 parts separated by dots."
+    }
+
+    # The payload is the second part of the token
+    $base64Payload = $parts[1]
+
+    # Convert Base64Url to standard Base64
+    $base64Payload = $base64Payload.Replace('-', '+').Replace('_', '/')
+
+    # Add padding if necessary
+    switch ($base64Payload.Length % 4) {
+        2 { $base64Payload += "==" }
+        3 { $base64Payload += "=" }
+    }
+
+    $bytes = [System.Convert]::FromBase64String($base64Payload)
+    $json  = [System.Text.Encoding]::UTF8.GetString($bytes)
+
+    return $json | ConvertFrom-Json
+}
+
+# ──────────────────────────────────────────────────────────────
 # Exports
 # ──────────────────────────────────────────────────────────────
 
@@ -438,5 +496,6 @@ Export-ModuleMember -Function @(
     'Complete-SyncLogEntry',
     'Get-DeltaToken',
     'Save-DeltaToken',
-    'Disable-DeltaToken'
+    'Disable-DeltaToken',
+    'ConvertFrom-JwtToken'
 )
