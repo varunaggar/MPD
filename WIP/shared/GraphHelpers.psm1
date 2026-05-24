@@ -102,9 +102,9 @@ function Invoke-GraphRequest {
 
     # Use config value if not explicitly passed
     if (-not $MaxRetries) {
-        $MaxRetries = [int]($script:GraphConfig?.Graph.MaxRetries ?? 5)
+        $MaxRetries = if ($script:GraphConfig -and $script:GraphConfig.Graph.MaxRetries) { [int]$script:GraphConfig.Graph.MaxRetries } else { 5 }
     }
-    $throttleMax = [int]($script:GraphConfig?.Graph.ThrottleBackoffMaxSec ?? 300)
+    $throttleMax = if ($script:GraphConfig -and $script:GraphConfig.Graph.ThrottleBackoffMaxSec) { [int]$script:GraphConfig.Graph.ThrottleBackoffMaxSec } else { 300 }
 
     $attempt   = 0
     $lastError = $null
@@ -177,7 +177,7 @@ function Invoke-GraphRequest {
         }
     }
 
-    throw "Graph request failed after $MaxRetries attempts. URI: $Uri | Last error: $($lastError.Exception.Message)"
+    throw "Invoke-GraphRequest ($Method) failed after $MaxRetries attempts. URI: $Uri | Error: $($lastError.Exception.Message)"
 }
 
 # ──────────────────────────────────────────────────────────────

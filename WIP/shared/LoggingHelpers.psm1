@@ -44,8 +44,8 @@ function Initialize-Logging {
 
     $script:ProcessName   = $ProcessName
     $script:LogDirectory  = $Config.Logging.Directory
-    $script:RetentionDays = [int]($Config.Logging.RetentionDays ?? 30)
-    $script:LogLevel      = $Config.Logging.Level ?? 'Info'
+    $script:RetentionDays = if ($null -ne $Config.Logging.RetentionDays) { [int]$Config.Logging.RetentionDays } else { 30 }
+    $script:LogLevel      = if ($null -ne $Config.Logging.Level) { $Config.Logging.Level } else { 'Info' }
 
     # Create log directory if it doesn't exist
     if (-not (Test-Path $script:LogDirectory)) {
@@ -91,9 +91,20 @@ function Write-LogInfo {
 
 function Write-LogWarning {
     [CmdletBinding()]
-    param([Parameter(Mandatory, Position=0)] [string]$Message)
+    param(
+        [Parameter(Mandatory, Position=0)] [string]$Message,
+        [System.Management.Automation.ErrorRecord]$ErrorRecord
+    )
 
-    Write-LogEntry -Level 'WARN ' -Message $Message -ConsoleColor Yellow
+    $logMsg = $Message
+    if ($ErrorRecord) {
+        $logMsg += " | Detail: $($ErrorRecord.Exception.Message)"
+        if ($ErrorRecord.InvocationInfo) {
+            $logMsg += " [At line $($ErrorRecord.InvocationInfo.ScriptLineNumber)]"
+        }
+    }
+
+    Write-LogEntry -Level 'WARN ' -Message $logMsg -ConsoleColor Yellow
 }
 
 # ──────────────────────────────────────────────────────────────
@@ -107,13 +118,19 @@ function Write-LogError {
         [System.Management.Automation.ErrorRecord]$ErrorRecord
     )
 
-    $full = if ($ErrorRecord) {
-        "$Message | Exception: $($ErrorRecord.Exception.Message)"
-    } else {
-        $Message
+    $logMsg = $Message
+    if ($ErrorRecord) {
+        $invoc = $ErrorRecord.InvocationInfo
+        $location = if ($invoc) { " [Source: $($invoc.ScriptName) Line: $($invoc.ScriptLineNumber)]" } else { "" }
+        $logMsg += " | Exception: $($ErrorRecord.Exception.Message)$location"
+        
+        # For deep debugging, we can log the stack trace to the file only
+        if ($script:LogFilePath -and $ErrorRecord.ScriptStackTrace) {
+            Add-Content -Path $script:LogFilePath -Value "$((Get-Date).ToString('yyyy-MM-dd HH:mm:ss')) [STACK] $($ErrorRecord.ScriptStackTrace)" -Encoding UTF8
+        }
     }
 
-    Write-LogEntry -Level 'ERROR' -Message $full -ConsoleColor Red
+    Write-LogEntry -Level 'ERROR' -Message $logMsg -ConsoleColor Red
 }
 
 # ──────────────────────────────────────────────────────────────

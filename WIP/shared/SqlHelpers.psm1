@@ -49,8 +49,8 @@ function Initialize-SqlContext {
 
     $script:SqlServer         = $Config.Database.Server
     $script:SqlDatabase       = $Config.Database.Name
-    $script:ConnectionTimeout = [int]($Config.Database.ConnectionTimeoutSec ?? 30)
-    $script:CommandTimeout    = [int]($Config.Database.CommandTimeoutSec ?? 120)
+    $script:ConnectionTimeout = if ($null -ne $Config.Database.ConnectionTimeoutSec) { [int]$Config.Database.ConnectionTimeoutSec } else { 30 }
+    $script:CommandTimeout    = if ($null -ne $Config.Database.CommandTimeoutSec) { [int]$Config.Database.CommandTimeoutSec } else { 120 }
 
     # Reset token cache
     $script:SqlTokenCache.Token     = $null
@@ -152,7 +152,7 @@ function Invoke-SqlNonQuery {
         return $cmd.ExecuteNonQuery()
     }
     catch {
-        throw "SQL non-query failed: $($_.Exception.Message)"
+        throw "Invoke-SqlNonQuery failed: $($_.Exception.Message)"
     }
     finally {
         if ($conn) { $conn.Close(); $conn.Dispose() }
