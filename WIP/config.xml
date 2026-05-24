@@ -28,7 +28,7 @@
     <AppId>f2a1282c-a035-4e4b-b16d-789f1d5bc2c7</AppId>
 
     <!-- Certificate auth -->
-    <CertificateThumbprint>REPLACE-WITH-CERT-THUMBPRINT</CertificateThumbprint>
+    <CertificateThumbprint>12345</CertificateThumbprint>
     <CertificateStoreLocation>LocalMachine</CertificateStoreLocation>
     <CertificateStoreName>My</CertificateStoreName>
 
