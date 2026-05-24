@@ -1,0 +1,160 @@
+================================================================================
+  M365 Permissions Sync — Log File
+  Process  : Invoke-UserBaselineLoad
+  Started  : 2026-05-24 22:11:15 UTC
+  Host     : 
+  User     : 
+  Log File : /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserBaselineLoad_2026-05-24_22-11-15.log
+================================================================================
+
+2026-05-24 22:11:15 [INFO ] Logging initialised — log file: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserBaselineLoad_2026-05-24_22-11-15.log
+2026-05-24 22:11:15 [INFO ] ─── Invoke-UserBaselineLoad ─────────────────────────────────────
+2026-05-24 22:11:15 [INFO ] Script   : Invoke-UserBaselineLoad
+2026-05-24 22:11:15 [INFO ] Config   : /Users/varunaggarwal/Documents/MPD-ENG/WIP/config.xml
+2026-05-24 22:11:15 [INFO ] Server   : mpd-sql-01.database.windows.net
+2026-05-24 22:11:15 [INFO ] Database : mpd-db01
+2026-05-24 22:11:15 [INFO ] AppId    : 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:15 [INFO ] Tenant   : c2efc329-9485-4475-bdc6-267f4b9954ef
+2026-05-24 22:11:15 [INFO ] ─── Dependency Validation ───────────────────────────────────────
+2026-05-24 22:11:15 [INFO ] Validating required dependencies in local folder: /Users/varunaggarwal/Documents/MPD-ENG/WIP/Modules
+2026-05-24 22:11:15 [INFO ] Checking dependency: Az.Accounts (>= 3.0.0)
+2026-05-24 22:11:15 [INFO ] Successfully imported Az.Accounts version 5.4.1 from local path
+2026-05-24 22:11:15 [INFO ] Checking dependency: ExchangeOnlineManagement (>= 3.4.0)
+2026-05-24 22:11:15 [INFO ] Successfully imported ExchangeOnlineManagement version 3.9.2 from local path
+2026-05-24 22:11:15 [INFO ] All dependencies validated and loaded successfully.
+2026-05-24 22:11:15 [INFO ] ─── Authentication ──────────────────────────────────────────────
+2026-05-24 22:11:15 [INFO ] Establishing Azure connection (AuthType: Secret, Tenant: c2efc329-9485-4475-bdc6-267f4b9954ef, AppId: 29aacb3a-c35b-4f76-a071-835936475a48)...
+2026-05-24 22:11:16 [INFO ] Successfully authenticated to Azure using client secret auth.
+2026-05-24 22:11:16 [INFO ] Service principal connected successfully
+2026-05-24 22:11:16 [INFO ] Graph context initialised (BaseUrl=https://graph.microsoft.com/v1.0)
+2026-05-24 22:11:16 [INFO ] SQL context initialised (Server=mpd-sql-01.database.windows.net, DB=mpd-db01)
+2026-05-24 22:11:16 [INFO ] Requesting fresh SQL access token. Resource: https://database.windows.net/ | Target Tenant: Default
+2026-05-24 22:11:16 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:17 [INFO ] Sync log entry created (RunId: a355c878-a003-42e3-9ecf-80c9bef0901f)
+2026-05-24 22:11:17 [INFO ] Run ID: a355c878-a003-42e3-9ecf-80c9bef0901f
+2026-05-24 22:11:17 [INFO ] ─── Phase 1 — Graph paged fetch ─────────────────────────────────
+2026-05-24 22:11:17 [INFO ] Phase [GraphPagedFetch] starting
+2026-05-24 22:11:17 [INFO ] Fetching page 1 from Graph...
+2026-05-24 22:11:17 [INFO ] Acquiring Graph access token...
+2026-05-24 22:11:17 [INFO ] Graph token acquired. Valid until 05/25/2026 21:01:16 UTC
+2026-05-24 22:11:17 [INFO ] Paged request complete: 1 pages, 37 total objects
+2026-05-24 22:11:17 [INFO ] Phase [GraphPagedFetch] completed in 0.31s
+2026-05-24 22:11:17 [INFO ] Graph returned 37 users
+2026-05-24 22:11:17 [INFO ] ─── Phase 2 — SQL upsert ────────────────────────────────────────
+2026-05-24 22:11:17 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:17 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:17 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:17 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:17 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:17 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:17 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:17 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:17 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:17 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:18 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:18 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:19 [INFO ] SQL upsert complete in 1.4s — 37 upserted, 0 errors
+2026-05-24 22:11:19 [INFO ] ─── Phase 3 — Capture delta token ───────────────────────────────
+2026-05-24 22:11:19 [INFO ] Phase [CaptureDeltaToken] starting
+2026-05-24 22:11:19 [INFO ] Fetching delta page 1...
+2026-05-24 22:11:19 [INFO ] Fetching delta page 2...
+2026-05-24 22:11:19 [INFO ] Delta query complete: 2 pages, 37 changed objects
+2026-05-24 22:11:19 [INFO ] Phase [CaptureDeltaToken] completed in 0.56s
+2026-05-24 22:11:19 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:19 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:19 [STACK] at Invoke-SqlNonQuery, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/SqlHelpers.psm1: line 190
+at Save-DeltaToken, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/SqlHelpers.psm1: line 418
+at <ScriptBlock>, /Users/varunaggarwal/Documents/MPD-ENG/WIP/Invoke-UserBaselineLoad.ps1: line 233
+at <ScriptBlock>, <No file>: line 1
+2026-05-24 22:11:19 [ERROR] Invoke-SqlNonQuery failed: Exception calling "ExecuteNonQuery" with "0" argument(s): "String or binary data would be truncated in table 'mpd-db01.dbo.DeltaTokens', column 'TokenValue'. Truncated value: 'pRitAyxi8U1225mElcLj5JAMPBG4ePgEFKhDjBHNYO_fz_SPVichaDNFBY0lcr8fKEsY-a-QRrKpY2UER7M0uyw8gq5ru_Mrcpll'.
+The statement has been terminated." | Exception: Exception calling "ExecuteNonQuery" with "0" argument(s): "String or binary data would be truncated in table 'mpd-db01.dbo.DeltaTokens', column 'TokenValue'. Truncated value: 'pRitAyxi8U1225mElcLj5JAMPBG4ePgEFKhDjBHNYO_fz_SPVichaDNFBY0lcr8fKEsY-a-QRrKpY2UER7M0uyw8gq5ru_Mrcpll'.
+The statement has been terminated." [Source: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/SqlHelpers.psm1 Line: 190]
+2026-05-24 22:11:19 [STACK] at Invoke-SqlNonQuery, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/SqlHelpers.psm1: line 195
+at Save-DeltaToken, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/SqlHelpers.psm1: line 418
+at <ScriptBlock>, /Users/varunaggarwal/Documents/MPD-ENG/WIP/Invoke-UserBaselineLoad.ps1: line 233
+at <ScriptBlock>, <No file>: line 1
+2026-05-24 22:11:19 [ERROR] Phase 3 (delta token capture) failed | Exception: Invoke-SqlNonQuery failed: Exception calling "ExecuteNonQuery" with "0" argument(s): "String or binary data would be truncated in table 'mpd-db01.dbo.DeltaTokens', column 'TokenValue'. Truncated value: 'pRitAyxi8U1225mElcLj5JAMPBG4ePgEFKhDjBHNYO_fz_SPVichaDNFBY0lcr8fKEsY-a-QRrKpY2UER7M0uyw8gq5ru_Mrcpll'.
+The statement has been terminated." [Source: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/SqlHelpers.psm1 Line: 195]
+2026-05-24 22:11:19 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:06:15 UTC).
+2026-05-24 22:11:19 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:11:19 [INFO ] Sync log entry updated with status: Failed
+2026-05-24 22:11:19 [INFO ] ─── Run Summary ─────────────────────────────────────────────────
+2026-05-24 22:11:19 [INFO ] 
+2026-05-24 22:11:19 [INFO ] ── Run Summary 
+2026-05-24 22:11:19 [INFO ] ───────────────────────────────────────────────
+2026-05-24 22:11:19 [INFO ]   Users processed                37
+2026-05-24 22:11:19 [INFO ]   Token captured                 False
+2026-05-24 22:11:19 [INFO ]   Duration                       0.04 minutes
+2026-05-24 22:11:19 [INFO ]   Status                         Failed
+2026-05-24 22:11:19 [INFO ]   Users upserted                 37
+2026-05-24 22:11:19 [INFO ]   Run ID                         a355c878-a003-42e3-9ecf-80c9bef0901f
+2026-05-24 22:11:19 [INFO ]   Errors                         1
+2026-05-24 22:11:19 [INFO ] ─────────────────────────────────────────────────────────────
+2026-05-24 22:11:19 [INFO ] 
+
+================================================================================
+  Status   : Failed
+  Finished : 2026-05-24 22:11:19 UTC
+================================================================================

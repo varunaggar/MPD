@@ -1,0 +1,55 @@
+================================================================================
+  M365 Permissions Sync — Log File
+  Process  : Invoke-UserDeltaSync
+  Started  : 2026-05-24 22:44:24 UTC
+  Host     : 
+  User     : 
+  Log File : /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserDeltaSync_2026-05-24_22-44-24.log
+================================================================================
+
+2026-05-24 22:44:24 [INFO ] Logging initialised — log file: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserDeltaSync_2026-05-24_22-44-24.log
+2026-05-24 22:44:24 [INFO ] ─── Invoke-UserDeltaSync ────────────────────────────────────────
+2026-05-24 22:44:24 [INFO ] Config   : /Users/varunaggarwal/Documents/MPD-ENG/WIP/config.xml
+2026-05-24 22:44:24 [INFO ] Server   : mpd-sql-01.database.windows.net
+2026-05-24 22:44:24 [INFO ] Database : mpd-db01
+2026-05-24 22:44:24 [INFO ] ─── Authentication ──────────────────────────────────────────────
+2026-05-24 22:44:24 [INFO ] Establishing Azure connection (AuthType: Secret, Tenant: c2efc329-9485-4475-bdc6-267f4b9954ef, AppId: 29aacb3a-c35b-4f76-a071-835936475a48)...
+2026-05-24 22:44:24 [INFO ] Successfully authenticated to Azure using client secret auth.
+2026-05-24 22:44:24 [INFO ] Service principal connected successfully
+2026-05-24 22:44:24 [INFO ] Graph context initialised (BaseUrl=https://graph.microsoft.com/v1.0)
+2026-05-24 22:44:24 [INFO ] SQL context initialised (Server=mpd-sql-01.database.windows.net, DB=mpd-db01)
+2026-05-24 22:44:24 [INFO ] Requesting fresh SQL access token. Resource: https://database.windows.net/ | Target Tenant: Default
+2026-05-24 22:44:24 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:44:24 [INFO ] Sync log entry created (RunId: 902c3f47-8d9c-49c2-925d-11251ce8d26c)
+2026-05-24 22:44:24 [INFO ] Run ID: 902c3f47-8d9c-49c2-925d-11251ce8d26c
+2026-05-24 22:44:24 [INFO ] ─── Phase 1 — Fetch delta token ─────────────────────────────────
+2026-05-24 22:44:24 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:39:23 UTC).
+2026-05-24 22:44:24 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:44:24 [INFO ] Active token found (length: 2178)
+2026-05-24 22:44:24 [INFO ] ─── Phase 2 — Graph delta fetch ─────────────────────────────────
+2026-05-24 22:44:24 [INFO ] Phase [GraphDeltaFetch] starting
+2026-05-24 22:44:24 [INFO ] Fetching delta page 1...
+2026-05-24 22:44:24 [INFO ] Acquiring Graph access token...
+2026-05-24 22:44:25 [INFO ] Graph token acquired. Valid until 05/25/2026 21:34:24 UTC
+2026-05-24 22:44:25 [INFO ] Delta query complete: 1 pages, 0 changed objects
+2026-05-24 22:44:25 [INFO ] Phase [GraphDeltaFetch] completed in 0.26s
+2026-05-24 22:44:25 [INFO ] Delta returned 0 changed objects
+2026-05-24 22:44:25 [INFO ] No changes since last run — nothing to process
+2026-05-24 22:44:25 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:39:23 UTC).
+2026-05-24 22:44:25 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:44:25 [INFO ] Using cached SQL access token (expires: 05/24/2026 22:39:23 UTC).
+2026-05-24 22:44:25 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 22:44:25 [INFO ] Sync log entry updated with status: Success
+2026-05-24 22:44:25 [INFO ] 
+2026-05-24 22:44:25 [INFO ] ── Run Summary 
+2026-05-24 22:44:25 [INFO ] ───────────────────────────────────────────────
+2026-05-24 22:44:25 [INFO ]   Duration                       0.3s
+2026-05-24 22:44:25 [INFO ]   Status                         Success (no changes)
+2026-05-24 22:44:25 [INFO ]   Objects changed                0
+2026-05-24 22:44:25 [INFO ] ─────────────────────────────────────────────────────────────
+2026-05-24 22:44:25 [INFO ] 
+
+================================================================================
+  Status   : Success
+  Finished : 2026-05-24 22:44:25 UTC
+================================================================================

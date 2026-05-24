@@ -82,8 +82,9 @@ function Initialize-ModuleDependencies {
         $moduleToLoad = $validModules | Sort-Object -Property Version -Descending | Select-Object -First 1
 
         try {
-            # Import the module directly by its full path
-            Import-Module -FullyQualifiedName $moduleToLoad.Path -ErrorAction Stop
+            # Import the module directly by its full path into global scope so its commands
+            # are available to the calling script.
+            Import-Module -FullyQualifiedName $moduleToLoad.Path -Scope Global -ErrorAction Stop
             Write-LogInfo "Successfully imported $name version $($moduleToLoad.Version) from local path"
         }
         catch {

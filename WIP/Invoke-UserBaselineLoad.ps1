@@ -37,6 +37,7 @@ param(
 $ErrorActionPreference = "Stop"
 $scriptName            = "Invoke-UserBaselineLoad"
 $sharedPath            = Join-Path $PSScriptRoot "shared"
+$modulesRoot           = Join-Path $PSScriptRoot "Modules"
 
 # ──────────────────────────────────────────────────────────────
 # Bootstrap — import shared modules

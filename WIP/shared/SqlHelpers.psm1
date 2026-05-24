@@ -96,10 +96,22 @@ function Get-SqlAccessToken {
         $tokenInfo = Get-AzAccessToken @tokenParams
         $sw.Stop()
 
-        $script:SqlTokenCache.Token     = $tokenInfo.Token
+        # Ensure the token is a plain string. Modern Az modules return SecureString.
+        $plainToken = if ($tokenInfo.Token -is [System.Security.SecureString]) {
+            $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($tokenInfo.Token)
+            try {
+                [Runtime.InteropServices.Marshal]::PtrToStringUni($ptr)
+            }
+            finally {
+                [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+            }
+        } else {
+            $tokenInfo.Token
+        }
+
+        $script:SqlTokenCache.Token     = $plainToken
         $script:SqlTokenCache.ExpiresAt = $tokenInfo.ExpiresOn.UtcDateTime.AddMinutes(-5)
-        #Wait-debugger
-        return $tokenInfo.Token
+        return $plainToken
     }
     catch {
         $errMsg = "Failed to acquire SQL access token: $($_.Exception.Message)"
@@ -120,7 +132,16 @@ function New-SqlConnection {
 
     $conn             = New-Object System.Data.SqlClient.SqlConnection
     $conn.ConnectionString = $connStr
-    $conn.AccessToken      = Get-SqlAccessToken
+    $token = Get-SqlAccessToken
+    $conn.AccessToken      = $token
+
+    # Log the identity found in the token for easier troubleshooting of "Login failed" errors
+    try {
+        $jwt = ConvertFrom-JwtToken -Token $token
+        $identity = $jwt.upn ?? $jwt.unique_name ?? $jwt.appid ?? $jwt.oid
+        Write-LogInfo "Attempting SQL login to [$($script:SqlDatabase)] using identity: $identity"
+    } catch { }
+
     $conn.Open()
     return $conn
 }
@@ -200,7 +221,10 @@ function Invoke-SqlScalar {
         Set-SqlParameters -Command $cmd -Parameters $Parameters
 
         $result = $cmd.ExecuteScalar()
-        return if ($null -eq $result -or $result -is [System.DBNull]) { $null } else { $result }
+        if ($null -eq $result -or $result -is [System.DBNull]) {
+            return $null
+        }
+        return $result
     }
     catch {
         $errMsg = "SQL scalar failed: $($_.Exception.Message)"
@@ -239,7 +263,10 @@ function Invoke-SqlQuery {
         $ds      = New-Object System.Data.DataSet
         [void]$adapter.Fill($ds)
 
-        return if ($ds.Tables.Count -eq 0) { @() } else { $ds.Tables[0] }
+        if ($ds.Tables.Count -eq 0) {
+            return @()
+        }
+        return $ds.Tables[0]
     }
     catch {
         $errMsg = "SQL query failed: $($_.Exception.Message)"

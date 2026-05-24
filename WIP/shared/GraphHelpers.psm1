@@ -73,12 +73,25 @@ function Get-GraphToken {
             -ResourceUrl "https://graph.microsoft.com/" `
             -ErrorAction Stop
 
-        $script:TokenCache.Token     = $tokenInfo.Token
+        # Ensure the token is a plain string. Modern Az modules return SecureString.
+        $plainToken = if ($tokenInfo.Token -is [System.Security.SecureString]) {
+            $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($tokenInfo.Token)
+            try {
+                [Runtime.InteropServices.Marshal]::PtrToStringUni($ptr)
+            }
+            finally {
+                [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+            }
+        } else {
+            $tokenInfo.Token
+        }
+
+        $script:TokenCache.Token     = $plainToken
         # Expire 10 minutes early as a safety margin
         $script:TokenCache.ExpiresAt = $tokenInfo.ExpiresOn.UtcDateTime.AddMinutes(-10)
-        
-        Write-LogInfo "Graph token acquired. Valid until $($script:TokenCache.ExpiresAt) UTC" 
-        return $tokenInfo.Token
+
+        Write-LogInfo "Graph token acquired. Valid until $($script:TokenCache.ExpiresAt) UTC"
+        return $plainToken
     }
     catch {
         throw "Failed to acquire Graph access token: $($_.Exception.Message)"

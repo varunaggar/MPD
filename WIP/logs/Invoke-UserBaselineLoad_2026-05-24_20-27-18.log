@@ -1,0 +1,42 @@
+================================================================================
+  M365 Permissions Sync — Log File
+  Process  : Invoke-UserBaselineLoad
+  Started  : 2026-05-24 20:27:18 UTC
+  Host     : 
+  User     : 
+  Log File : /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserBaselineLoad_2026-05-24_20-27-18.log
+================================================================================
+
+2026-05-24 20:27:18 [INFO ] Logging initialised — log file: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserBaselineLoad_2026-05-24_20-27-18.log
+2026-05-24 20:27:18 [INFO ] ─── Invoke-UserBaselineLoad ─────────────────────────────────────
+2026-05-24 20:27:18 [INFO ] Script   : Invoke-UserBaselineLoad
+2026-05-24 20:27:18 [INFO ] Config   : /Users/varunaggarwal/Documents/MPD-ENG/WIP/config.xml
+2026-05-24 20:27:18 [INFO ] Server   : mpd-sql-01.database.windows.net
+2026-05-24 20:27:18 [INFO ] Database : mpd-db01
+2026-05-24 20:27:18 [INFO ] AppId    : 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-24 20:27:18 [INFO ] Tenant   : c2efc329-9485-4475-bdc6-267f4b9954ef
+2026-05-24 20:27:18 [INFO ] ─── Dependency Validation ───────────────────────────────────────
+2026-05-24 20:27:18 [INFO ] Validating required dependencies in local folder: /Users/varunaggarwal/Documents/MPD-ENG/WIP/Modules
+2026-05-24 20:27:18 [INFO ] Checking dependency: Az.Accounts (>= 3.0.0)
+2026-05-24 20:27:19 [INFO ] Successfully imported Az.Accounts version 5.4.1 from local path
+2026-05-24 20:27:19 [INFO ] Checking dependency: ExchangeOnlineManagement (>= 3.4.0)
+2026-05-24 20:27:19 [INFO ] Successfully imported ExchangeOnlineManagement version 3.9.2 from local path
+2026-05-24 20:27:19 [INFO ] All dependencies validated and loaded successfully.
+2026-05-24 20:27:19 [INFO ] ─── Authentication ──────────────────────────────────────────────
+2026-05-24 20:27:19 [INFO ] Establishing Azure connection (AuthType: Secret, Tenant: c2efc329-9485-4475-bdc6-267f4b9954ef, AppId: 29aacb3a-c35b-4f76-a071-835936475a48)...
+2026-05-24 20:27:19 [STACK] at Connect-SyncServicePrincipal, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/ConfigHelpers.psm1: line 149
+at <ScriptBlock>, /Users/varunaggarwal/Documents/MPD-ENG/WIP/Invoke-UserBaselineLoad.ps1: line 94
+at <ScriptBlock>, <No file>: line 1
+2026-05-24 20:27:19 [ERROR] Azure authentication failed: The term 'Connect-AzAccount' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again. | Exception: The term 'Connect-AzAccount' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again. [Source: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/ConfigHelpers.psm1 Line: 149]
+2026-05-24 20:27:19 [STACK] at Connect-SyncServicePrincipal, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/ConfigHelpers.psm1: line 183
+at <ScriptBlock>, /Users/varunaggarwal/Documents/MPD-ENG/WIP/Invoke-UserBaselineLoad.ps1: line 94
+at <ScriptBlock>, <No file>: line 1
+2026-05-24 20:27:19 [ERROR] Authentication failed — cannot continue | Exception: Azure authentication failed: The term 'Connect-AzAccount' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again. [Source: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/ConfigHelpers.psm1 Line: 183]
+
+================================================================================
+  Status   : Failed
+  Finished : 2026-05-24 20:27:19 UTC
+================================================================================

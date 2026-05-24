@@ -23,7 +23,7 @@ BEGIN
             CONSTRAINT PK_DeltaTokens PRIMARY KEY,
 
         -- The opaque cursor value returned by Microsoft Graph
-        TokenValue          NVARCHAR(2000)  NOT NULL,
+        TokenValue          NVARCHAR(MAX)  NOT NULL,
 
         -- When this token row was first created
         CreatedAt           DATETIME2       NOT NULL
@@ -92,11 +92,11 @@ BEGIN
         -- Error summary
         ErrorCount          INT             NOT NULL
             CONSTRAINT DF_SyncLog_ErrorCount DEFAULT 0,
-        ErrorMessage        NVARCHAR(2000)  NULL,
+        ErrorMessage        NVARCHAR(MAX)  NULL,
 
         -- The delta token value that was saved at the end of this run
         -- NULL for baseline loads that capture the initial token separately
-        TokenAdvancedTo     NVARCHAR(2000)  NULL
+        TokenAdvancedTo     NVARCHAR(MAX)  NULL
     );
 
     -- ── Indexes ──────────────────────────────────────────────
