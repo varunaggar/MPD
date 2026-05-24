@@ -1,0 +1,38 @@
+================================================================================
+  M365 Permissions Sync — Log File
+  Process  : Invoke-UserBaselineLoad
+  Started  : 2026-05-24 17:56:52 UTC
+  Host     : 
+  User     : 
+  Log File : /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserBaselineLoad_2026-05-24_17-56-52.log
+================================================================================
+
+2026-05-24 17:56:52 [INFO ] Logging initialised — log file: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserBaselineLoad_2026-05-24_17-56-52.log
+2026-05-24 17:56:52 [INFO ] ─── Invoke-UserBaselineLoad ─────────────────────────────────────
+2026-05-24 17:56:52 [INFO ] Script   : Invoke-UserBaselineLoad
+2026-05-24 17:56:52 [INFO ] Config   : /Users/varunaggarwal/Documents/MPD-ENG/WIP/config.xml
+2026-05-24 17:56:52 [INFO ] Server   : m365perms-prod.database.windows.net
+2026-05-24 17:56:52 [INFO ] Database : db-m365permissions
+2026-05-24 17:56:52 [INFO ] AppId    : 1dc04941-89d3-4e9d-8f25-8c4b9f74a7e1
+2026-05-24 17:56:52 [INFO ] Tenant   : 086b944f-0278-4374-8dfe-305c4b5d1d70
+2026-05-24 17:56:52 [INFO ] ─── Dependency Validation ───────────────────────────────────────
+2026-05-24 17:56:52 [INFO ] Validating required dependencies in local folder: /Users/varunaggarwal/Documents/MPD-ENG/WIP/Modules
+2026-05-24 17:56:52 [INFO ] Checking dependency: Az.Accounts (>= 3.0.0)
+2026-05-24 17:56:52 [INFO ] Successfully imported Az.Accounts version 5.4.1 from local path
+2026-05-24 17:56:52 [INFO ] Checking dependency: ExchangeOnlineManagement (>= 3.4.0)
+2026-05-24 17:56:52 [INFO ] Successfully imported ExchangeOnlineManagement version 3.9.2 from local path
+2026-05-24 17:56:52 [INFO ] All dependencies validated and loaded successfully.
+2026-05-24 17:56:52 [INFO ] ─── Authentication ──────────────────────────────────────────────
+2026-05-24 17:56:52 [INFO ] Establishing Azure connection (AuthType: Secret, Tenant: 086b944f-0278-4374-8dfe-305c4b5d1d70, AppId: 1dc04941-89d3-4e9d-8f25-8c4b9f74a7e1)...
+2026-05-24 17:56:52 [INFO ] Successfully authenticated to Azure using client secret auth.
+2026-05-24 17:56:52 [INFO ] Service principal connected successfully
+2026-05-24 17:56:52 [INFO ] Graph context initialised (BaseUrl=https://graph.microsoft.com/v1.0)
+2026-05-24 17:56:52 [INFO ] SQL context initialised (Server=m365perms-prod.database.windows.net, DB=db-m365permissions)
+2026-05-24 17:56:52 [INFO ] Acquiring SQL access token...
+2026-05-24 17:56:52 [INFO ] SQL access token acquired (expires: 05/24/2026 17:51:51 UTC)
+2026-05-24 17:57:22 [STACK] at New-SqlConnection, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/SqlHelpers.psm1: line 111
+at Invoke-SqlNonQuery, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/SqlHelpers.psm1: line 151
+at Start-SyncLogEntry, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/SqlHelpers.psm1: line 299
+at <ScriptBlock>, /Users/varunaggarwal/Documents/MPD-ENG/WIP/Invoke-UserBaselineLoad.ps1: line 109
+at <ScriptBlock>, <No file>: line 1
+2026-05-24 17:57:22 [ERROR] Invoke-SqlNonQuery failed: Exception calling "Open" with "0" argument(s): "A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: TCP Provider, error: 35 - An internal exception was caught)" | Exception: Exception calling "Open" with "0" argument(s): "A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: TCP Provider, error: 35 - An internal exception was caught)" [Source: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/SqlHelpers.psm1 Line: 111]
