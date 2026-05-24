@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    M365 Permissions Sync — Configuration File
+    ===========================================
+    All settings for the sync solution are stored here.
+    Replace every REPLACE-WITH-* placeholder before first run.
+
+    Certificate setup:
+      1. Create a self-signed certificate (or use your PKI):
+         $cert = New-SelfSignedCertificate -Subject "CN=M365PermSync" `
+                     -CertStoreLocation "Cert:\LocalMachine\My" `
+                     -KeyExportPolicy Exportable -KeySpec Signature `
+                     -KeyLength 2048 -HashAlgorithm SHA256 `
+                     -NotAfter (Get-Date).AddYears(2)
+      2. Export the public key (.cer) and upload to the Entra app registration.
+      3. Copy the thumbprint into CertificateThumbprint below.
+-->
+<M365PermsSyncConfig>
+
+  <!-- General -->
+  <General>
+    <Environment>prod</Environment>
+    <Organisation>REPLACE-WITH-ORG-NAME</Organisation>
+  </General>
+
+  <!-- Entra / Azure authentication -->
+  <Authentication>
+    <!-- Entra tenant GUID -->
+    <TenantId>REPLACE-WITH-TENANT-GUID</TenantId>
+
+    <!-- App registration that has User.Read.All on Microsoft Graph
+         and is an EXTERNAL PROVIDER user on the SQL database -->
+    <AppId>REPLACE-WITH-APP-REGISTRATION-GUID</AppId>
+
+    <!-- Thumbprint of the certificate installed in the cert store below.
+         Run: Get-ChildItem Cert:\LocalMachine\My | Select Subject,Thumbprint -->
+    <CertificateThumbprint>REPLACE-WITH-40-CHAR-THUMBPRINT</CertificateThumbprint>
+
+    <!-- Windows certificate store location: LocalMachine or CurrentUser -->
+    <CertificateStoreLocation>LocalMachine</CertificateStoreLocation>
+
+    <!-- Store name — My = Personal, defaults to My -->
+    <CertificateStoreName>My</CertificateStoreName>
+  </Authentication>
+
+  <!-- Azure SQL Database -->
+  <Database>
+    <!-- Fully-qualified Azure SQL server hostname -->
+    <Server>REPLACE-sql-m365perms-prod.database.windows.net</Server>
+
+    <!-- Database name -->
+    <Name>db-m365permissions</Name>
+
+    <!-- Connection and command timeouts in seconds -->
+    <ConnectionTimeoutSec>30</ConnectionTimeoutSec>
+    <CommandTimeoutSec>120</CommandTimeoutSec>
+  </Database>
+
+  <!-- Logging -->
+  <Logging>
+    <!-- Directory where log files are written.
+         The service account running the scheduled task must have Write access. -->
+    <Directory>C:\M365PermSync\Logs</Directory>
+
+    <!-- How many days to keep log files before automatic deletion -->
+    <RetentionDays>30</RetentionDays>
+
+    <!-- Log level: Info | Warning | Error -->
+    <Level>Info</Level>
+  </Logging>
+
+  <!-- Microsoft Graph API -->
+  <Graph>
+    <BaseUrl>https://graph.microsoft.com/v1.0</BaseUrl>
+    <TokenScope>https://graph.microsoft.com/.default</TokenScope>
+
+    <!-- Number of objects per page ($top) for paged requests -->
+    <PageSize>999</PageSize>
+
+    <!-- Maximum retry attempts on transient failures (429, 5xx) -->
+    <MaxRetries>5</MaxRetries>
+
+    <!-- Hard cap on Retry-After backoff in seconds (avoids very long waits) -->
+    <ThrottleBackoffMaxSec>300</ThrottleBackoffMaxSec>
+  </Graph>
+
+  <!-- Exchange Online -->
+  <ExchangeOnline>
+    <!-- Your tenant's .onmicrosoft.com primary domain.
+         Required by Connect-ExchangeOnline certificate auth.
+         Find in: Microsoft 365 admin centre → Settings → Domains -->
+    <Organisation>REPLACE-WITH-TENANT.onmicrosoft.com</Organisation>
+
+    <!-- Mailbox types to collect. Comma-separated.
+         Valid values: UserMailbox, SharedMailbox, RoomMailbox, EquipmentMailbox -->
+    <MailboxTypes>UserMailbox,SharedMailbox,RoomMailbox,EquipmentMailbox</MailboxTypes>
+
+    <!-- Batch size for processing mailboxes through SQL MERGE -->
+    <SqlBatchSize>500</SqlBatchSize>
+  </ExchangeOnline>
+
+  <!-- Sync behaviour -->
+  <Sync>
+    <!-- How far back the delta sync looks when constructing the WhenChangedUTC
+         filter (minutes). Set slightly wider than the scheduled task interval
+         to ensure overlap and no missed changes. -->
+    <DeltaOverlapMinutes>30</DeltaOverlapMinutes>
+  </Sync>
+
+</M365PermsSyncConfig>
