@@ -1,0 +1,32 @@
+================================================================================
+  M365 Permissions Sync — Log File
+  Process  : Invoke-UserDeltaSync
+  Started  : 2026-05-25 11:34:51 UTC
+  Host     : 
+  User     : 
+  Log File : /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserDeltaSync_2026-05-25_11-34-51.log
+================================================================================
+
+2026-05-25 11:34:51 [INFO ] Logging initialised — log file: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/../logs/Invoke-UserDeltaSync_2026-05-25_11-34-51.log
+2026-05-25 11:34:51 [INFO ] ─── Invoke-UserDeltaSync ────────────────────────────────────────
+2026-05-25 11:34:51 [INFO ] Config   : /Users/varunaggarwal/Documents/MPD-ENG/WIP/config.xml
+2026-05-25 11:34:51 [INFO ] Server   : mpd-sql-01.database.windows.net
+2026-05-25 11:34:51 [INFO ] Database : mpd-db01
+2026-05-25 11:34:51 [INFO ] ─── Authentication ──────────────────────────────────────────────
+2026-05-25 11:34:51 [INFO ] Establishing Azure connection (AuthType: Secret, Tenant: c2efc329-9485-4475-bdc6-267f4b9954ef, AppId: 29aacb3a-c35b-4f76-a071-835936475a48)...
+2026-05-25 11:34:51 [STACK] at Connect-SyncServicePrincipal, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/ConfigHelpers.psm1: line 149
+at <ScriptBlock>, /Users/varunaggarwal/Documents/MPD-ENG/WIP/Invoke-UserDeltaSync.ps1: line 84
+at <ScriptBlock>, <No file>: line 1
+2026-05-25 11:34:51 [ERROR] Azure authentication failed: The term 'Connect-AzAccount' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again. | Exception: The term 'Connect-AzAccount' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again. [Source: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/ConfigHelpers.psm1 Line: 149]
+2026-05-25 11:34:51 [STACK] at Connect-SyncServicePrincipal, /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/ConfigHelpers.psm1: line 183
+at <ScriptBlock>, /Users/varunaggarwal/Documents/MPD-ENG/WIP/Invoke-UserDeltaSync.ps1: line 84
+at <ScriptBlock>, <No file>: line 1
+2026-05-25 11:34:51 [ERROR] Authentication failed — cannot continue | Exception: Azure authentication failed: The term 'Connect-AzAccount' is not recognized as a name of a cmdlet, function, script file, or executable program.
+Check the spelling of the name, or if a path was included, verify that the path is correct and try again. [Source: /Users/varunaggarwal/Documents/MPD-ENG/WIP/shared/ConfigHelpers.psm1 Line: 183]
+
+================================================================================
+  Status   : Failed
+  Finished : 2026-05-25 11:34:51 UTC
+================================================================================

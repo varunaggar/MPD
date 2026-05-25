@@ -181,10 +181,15 @@ WHEN NOT MATCHED THEN INSERT (
 
 $progressInterval = 5000
 $phaseStart = [System.Diagnostics.Stopwatch]::StartNew()
+$batchSize = 500
+$batchStatements = @()
 
 foreach ($u in $allUsers) {
     try {
         Invoke-SqlNonQuery -Query $mergeSql -Parameters @{
+    $batchStatements += @{
+        Query      = $mergeSql
+        Parameters = @{
             '@UserId'                = [guid]$u.id
             '@UPN'                   = $u.userPrincipalName
             '@DisplayName'           = $u.displayName
@@ -198,16 +203,40 @@ foreach ($u in $allUsers) {
             '@RunId'                 = $runId
         } | Out-Null
         $inserted++
+        }
     }
     catch {
         $errors++
         Write-LogWarning "MERGE failed for $($u.userPrincipalName): $($_.Exception.Message)"
+
+    if ($batchStatements.Count -ge $batchSize) {
+        try {
+            $inserted += Invoke-SqlBatch -Statements $batchStatements -UseTransaction
+        }
+        catch {
+            $errors += $batchStatements.Count
+            Write-LogWarning "Batch execution failed: $($_.Exception.Message)"
+        }
+        $processed += $batchStatements.Count
+        $batchStatements = @()
+        if ($processed % $progressInterval -lt $batchSize) {
+            Write-LogInfo "Progress: $processed / $($allUsers.Count) users processed ($errors errors)"
+        }
     }
     $processed++
+}
 
     if ($processed % $progressInterval -eq 0) {
         Write-LogInfo "Progress: $processed / $($allUsers.Count) users processed ($errors errors)"
+if ($batchStatements.Count -gt 0) {
+    try {
+        $inserted += Invoke-SqlBatch -Statements $batchStatements -UseTransaction
     }
+    catch {
+        $errors += $batchStatements.Count
+        Write-LogWarning "Final batch execution failed: $($_.Exception.Message)"
+    }
+    $processed += $batchStatements.Count
 }
 
 $phaseStart.Stop()
