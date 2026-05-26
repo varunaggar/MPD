@@ -18,33 +18,38 @@
 <M365PermsSyncConfig>
   <General>
     <Environment>ENG</Environment>
-    <Organisation>x7m2c.onmicrosoft.com</Organisation>
+    <Organisation>uccloud.uk</Organisation>
   </General>
   <Authentication>
     <!-- Authentication mode: Certificate | Secret | ManagedIdentity | User -->
     <AuthType>Secret</AuthType>
-    <TenantId>086b944f-0278-4374-8dfe-305c4b5d1d70</TenantId>
-    <AppId>f2a1282c-a035-4e4b-b16d-789f1d5bc2c7</AppId>
+    <TenantID>c2efc329-9485-4475-bdc6-267f4b9954ef</TenantID>
+    <!-- <TenantId>086b944f-0278-4374-8dfe-305c4b5d1d70</TenantId> -->
+    <!-- <AppId>1dc04941-89d3-4e9d-8f25-8c4b9f74a7e1</AppId> -->
     <!-- Certificate auth -->
+    <AppID>29aacb3a-c35b-4f76-a071-835936475a48</AppID>
     <CertificateThumbprint>12345</CertificateThumbprint>
     <CertificateStoreLocation>LocalMachine</CertificateStoreLocation>
     <CertificateStoreName>My</CertificateStoreName>
     <!-- Secret auth -->
-    <ClientSecret>REPLACE-WITH-CLIENT-SECRET</ClientSecret>
+    <!-- <ClientSecret>Rda8Q~UB_hHTsj9ZdYcPsayPGRK02rM2GOIlOazx</ClientSecret> -->
     <!-- Managed identity auth (optional user-assigned client id) -->
+    <ClientSecret>MI98Q~hPuhCuK46zr7aUlS0kVNJHPFliXnd8BbeL</ClientSecret>
     <ManagedIdentityClientId></ManagedIdentityClientId>
     <!-- User auth (optional UPN for interactive login) -->
     <UserPrincipalName></UserPrincipalName>
   </Authentication>
   <!-- Azure SQL Database -->
   <Database>
-    <Server>m365perms-prod.database.windows.net</Server>
-    <Name>db-m365permissions</Name>
+    <Server>mpd-sql-01.database.windows.net</Server>
+    <Name>mpd-db01</Name>
+    <!-- Optional: Populate only for cross-tenant SQL authentication -->
+    <TargetTenantId>c2efc329-9485-4475-bdc6-267f4b9954ef</TargetTenantId>
     <ConnectionTimeoutSec>30</ConnectionTimeoutSec>
     <CommandTimeoutSec>120</CommandTimeoutSec>
   </Database>
   <Logging>
-    <Directory></Directory>
+    <Directory>./Logs</Directory>
     <RetentionDays>30</RetentionDays>
     <!-- Log level: Info | Warning | Error -->
     <Level>Info</Level>
@@ -64,7 +69,7 @@
   </Graph>
   <!-- Exchange Online -->
   <ExchangeOnline>
-    <Organisation>x7m2c.onmicrosoft.com</Organisation>
+    <Organisation>uccloud.uk</Organisation>
     <MailboxTypes>UserMailbox,SharedMailbox,RoomMailbox,EquipmentMailbox</MailboxTypes>
     <!-- Batch size for processing mailboxes through SQL MERGE -->
     <SqlBatchSize>500</SqlBatchSize>

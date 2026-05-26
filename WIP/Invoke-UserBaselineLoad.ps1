@@ -36,11 +36,13 @@ param(
 
 $ErrorActionPreference = "Stop"
 $scriptName            = "Invoke-UserBaselineLoad"
+# Paths to shared or helper modules
 $sharedPath            = Join-Path $PSScriptRoot "shared"
+# Path to Powershell modules
 $modulesRoot           = Join-Path $PSScriptRoot "Modules"
 
 # ──────────────────────────────────────────────────────────────
-# Bootstrap — import shared modules
+# Bootstrap — import shared / helper modules
 # ──────────────────────────────────────────────────────────────
 
 Import-Module (Join-Path $sharedPath "ConfigHelpers.psm1")  -Force
@@ -73,21 +75,18 @@ Write-LogInfo "Script   : $scriptName"
 Write-LogInfo "Config   : $ConfigPath"
 Write-LogInfo "Server   : $($Config.Database.Server)"
 Write-LogInfo "Database : $($Config.Database.Name)"
-Write-LogInfo "AppId    : $($Config.Authentication.AppId)"
-Write-LogInfo "Tenant   : $($Config.Authentication.TenantId)"
+Write-LogInfo "AppId    : $($Config.Authentication.AppID)"
+Write-LogInfo "Tenant   : $($Config.Authentication.TenantID)"
 
 # ──────────────────────────────────────────────────────────────
-# Validate local dependencies
+# Load PS modules as per the config.xml file
 # ──────────────────────────────────────────────────────────────
-
 Write-LogSection "Dependency Validation"
 Initialize-ModuleDependencies -Config $Config
 
-
 # ──────────────────────────────────────────────────────────────
-# Authenticate to Azure and initialise helper contexts
+# Authenticate to Azure AD using App ID 
 # ──────────────────────────────────────────────────────────────
-
 Write-LogSection "Authentication"
 
 try {
@@ -100,12 +99,16 @@ catch {
     exit 1
 }
 
+# ──────────────────────────────────────────────────────────────
+# Initialise Graph and SQL contexts
+# ──────────────────────────────────────────────────────────────
 Initialize-GraphContext -Config $Config
 Initialize-SqlContext   -Config $Config
 
-# ──────────────────────────────────────────────────────────────
-# Start run tracking
-# ──────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────────────────────────────────────────────────────────────
+# Start run tracking - Create a entry in SyncLog table to keep a track of the execution and result
+# The function Start-SyncLogEntry acquires a AAD toekn  for SQL auth and creates a connection to SQL database
+# ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 $runId = Start-SyncLogEntry -FunctionName $scriptName
 Write-LogInfo "Run ID: $runId"
@@ -117,7 +120,8 @@ $capturedToken = $null
 $overallStart  = [System.Diagnostics.Stopwatch]::StartNew()
 
 # ──────────────────────────────────────────────────────────────
-# Phase 1 — Page through /users
+# Phase 1 — Page through AAD users using Graph /users endpoint
+# The select statement has attributes which are queried from Graph
 # ──────────────────────────────────────────────────────────────
 
 Write-LogSection "Phase 1 — Graph paged fetch"
@@ -185,8 +189,6 @@ $batchSize = 500
 $batchStatements = @()
 
 foreach ($u in $allUsers) {
-    try {
-        Invoke-SqlNonQuery -Query $mergeSql -Parameters @{
     $batchStatements += @{
         Query      = $mergeSql
         Parameters = @{
@@ -201,13 +203,8 @@ foreach ($u in $allUsers) {
             '@JobTitle'              = $u.jobTitle
             '@CreatedDateTime'       = if ($u.createdDateTime) { [datetime]$u.createdDateTime } else { $null }
             '@RunId'                 = $runId
-        } | Out-Null
-        $inserted++
         }
     }
-    catch {
-        $errors++
-        Write-LogWarning "MERGE failed for $($u.userPrincipalName): $($_.Exception.Message)"
 
     if ($batchStatements.Count -ge $batchSize) {
         try {
@@ -219,15 +216,11 @@ foreach ($u in $allUsers) {
         }
         $processed += $batchStatements.Count
         $batchStatements = @()
-        if ($processed % $progressInterval -lt $batchSize) {
-            Write-LogInfo "Progress: $processed / $($allUsers.Count) users processed ($errors errors)"
-        }
+
+        Write-LogInfo "Progress: $processed / $($allUsers.Count) users processed ($errors errors)"
     }
-    $processed++
 }
 
-    if ($processed % $progressInterval -eq 0) {
-        Write-LogInfo "Progress: $processed / $($allUsers.Count) users processed ($errors errors)"
 if ($batchStatements.Count -gt 0) {
     try {
         $inserted += Invoke-SqlBatch -Statements $batchStatements -UseTransaction
@@ -251,7 +244,7 @@ Write-LogSection "Phase 3 — Capture delta token"
 
 try {
     $deltaResult = Invoke-LoggedPhase -Name "CaptureDeltaToken" -ScriptBlock {
-        $url = "$($Config.Graph.BaseUrl)/users/delta?`$select=id"
+        $url = "$($Config.Graph.BaseUrl)/users/delta"
         Invoke-GraphDeltaQuery -Uri $url
     }
 
@@ -275,9 +268,12 @@ catch {
 # ──────────────────────────────────────────────────────────────
 
 $overallStart.Stop()
-$finalStatus = if ($errors -gt 0 -and -not $capturedToken) { "Failed" }
-               elseif ($errors -gt 0)                      { "PartialFailure" }
-               else                                         { "Success" }
+$finalStatus = if ($errors -gt 0 -and -not $capturedToken) 
+                { "Failed" }
+               elseif ($errors -gt 0)                      
+               { "PartialFailure" }
+               else                                         
+               { "Success" }
 
 Complete-SyncLogEntry `
     -RunId          $runId `
