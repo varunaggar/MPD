@@ -1,0 +1,76 @@
+================================================================================
+  M365 Permissions Sync — Log File
+  Process  : Invoke-UserBaselineLoad
+  Started  : 2026-05-26 15:23:51 UTC
+  Host     : 
+  User     : 
+  Log File : ./Logs/Invoke-UserBaselineLoad_2026-05-26_15-23-51.log
+================================================================================
+
+2026-05-26 15:23:51 [INFO ] Logging initialised — log file: ./Logs/Invoke-UserBaselineLoad_2026-05-26_15-23-51.log
+2026-05-26 15:23:51 [INFO ] ─── Invoke-UserBaselineLoad ─────────────────────────────────────
+2026-05-26 15:23:51 [INFO ] Script   : Invoke-UserBaselineLoad
+2026-05-26 15:23:51 [INFO ] Config   : /Users/varunaggarwal/Documents/MPD-ENG/WIP/config.xml
+2026-05-26 15:23:51 [INFO ] Server   : mpd-sql-01.database.windows.net
+2026-05-26 15:23:51 [INFO ] Database : mpd-db01
+2026-05-26 15:23:51 [INFO ] AppId    : 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-26 15:23:51 [INFO ] Tenant   : c2efc329-9485-4475-bdc6-267f4b9954ef
+2026-05-26 15:23:51 [INFO ] ─── Dependency Validation ───────────────────────────────────────
+2026-05-26 15:23:51 [INFO ] Validating required dependencies in local folder: /Users/varunaggarwal/Documents/MPD-ENG/WIP/Modules
+2026-05-26 15:23:51 [INFO ] Checking dependency: Az.Accounts (>= 3.0.0)
+2026-05-26 15:23:51 [INFO ] Successfully imported Az.Accounts version 5.4.1 from local path
+2026-05-26 15:23:51 [INFO ] Checking dependency: ExchangeOnlineManagement (>= 3.4.0)
+2026-05-26 15:23:51 [INFO ] Successfully imported ExchangeOnlineManagement version 3.9.2 from local path
+2026-05-26 15:23:51 [INFO ] All dependencies validated and loaded successfully.
+2026-05-26 15:23:51 [INFO ] ─── Authentication ──────────────────────────────────────────────
+2026-05-26 15:23:51 [INFO ] Establishing Azure connection (AuthType: Secret, Tenant: c2efc329-9485-4475-bdc6-267f4b9954ef, AppId: 29aacb3a-c35b-4f76-a071-835936475a48)...
+2026-05-26 15:23:51 [INFO ] Successfully authenticated to Azure using client secret auth.
+2026-05-26 15:23:51 [INFO ] Service principal connected successfully
+2026-05-26 15:23:51 [INFO ] Graph context initialised (BaseUrl=https://graph.microsoft.com/v1.0)
+2026-05-26 15:23:51 [INFO ] SQL context initialised (Server=mpd-sql-01.database.windows.net, DB=mpd-db01)
+2026-05-26 15:23:51 [INFO ] Requesting fresh SQL access token. Resource: https://database.windows.net/ | Target Tenant: c2efc329-9485-4475-bdc6-267f4b9954ef
+2026-05-26 15:23:51 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-26 15:23:52 [INFO ] Sync log entry created (RunId: a3060196-4747-48fc-8c6c-826bb4dfe1f3)
+2026-05-26 15:23:52 [INFO ] Run ID: a3060196-4747-48fc-8c6c-826bb4dfe1f3
+2026-05-26 15:23:52 [INFO ] ─── Phase 1 — Graph paged fetch ─────────────────────────────────
+2026-05-26 15:23:52 [INFO ] Phase [GraphPagedFetch] starting
+2026-05-26 15:23:52 [INFO ] Fetching page 1 from Graph...
+2026-05-26 15:23:52 [INFO ] Acquiring Graph access token...
+2026-05-26 15:23:52 [INFO ] Graph token acquired. Valid until 05/27/2026 14:13:51 UTC
+2026-05-26 15:23:52 [INFO ] Paged request complete: 1 pages, 38 total objects
+2026-05-26 15:23:52 [INFO ] Phase [GraphPagedFetch] completed in 0.29s
+2026-05-26 15:23:52 [INFO ] Graph returned 38 users
+2026-05-26 15:23:52 [INFO ] ─── Phase 2 — SQL upsert ────────────────────────────────────────
+2026-05-26 15:23:52 [INFO ] Using cached SQL access token (expires: 05/26/2026 15:18:50 UTC).
+2026-05-26 15:23:52 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-26 15:23:53 [INFO ] SQL upsert complete in 0.8s — 38 upserted, 0 errors
+2026-05-26 15:23:53 [INFO ] ─── Phase 3 — Capture delta token ───────────────────────────────
+2026-05-26 15:23:53 [INFO ] Phase [CaptureDeltaToken] starting
+2026-05-26 15:23:53 [INFO ] Fetching delta page 1...
+2026-05-26 15:23:53 [INFO ] Fetching delta page 2...
+2026-05-26 15:23:54 [INFO ] Delta query complete: 2 pages, 39 changed objects
+2026-05-26 15:23:54 [INFO ] Phase [CaptureDeltaToken] completed in 0.78s
+2026-05-26 15:23:54 [INFO ] Using cached SQL access token (expires: 05/26/2026 15:18:50 UTC).
+2026-05-26 15:23:54 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-26 15:23:54 [INFO ] Starting delta token saved to DeltaTokens table
+2026-05-26 15:23:54 [INFO ] Using cached SQL access token (expires: 05/26/2026 15:18:50 UTC).
+2026-05-26 15:23:54 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-26 15:23:54 [INFO ] Sync log entry updated with status: Success
+2026-05-26 15:23:54 [INFO ] ─── Run Summary ─────────────────────────────────────────────────
+2026-05-26 15:23:54 [INFO ] 
+2026-05-26 15:23:54 [INFO ] ── Run Summary 
+2026-05-26 15:23:54 [INFO ] ───────────────────────────────────────────────
+2026-05-26 15:23:54 [INFO ]   Errors                         0
+2026-05-26 15:23:54 [INFO ]   Run ID                         a3060196-4747-48fc-8c6c-826bb4dfe1f3
+2026-05-26 15:23:54 [INFO ]   Status                         Success
+2026-05-26 15:23:54 [INFO ]   Duration                       0.03 minutes
+2026-05-26 15:23:54 [INFO ]   Users processed                38
+2026-05-26 15:23:54 [INFO ]   Token captured                 True
+2026-05-26 15:23:54 [INFO ]   Users upserted                 38
+2026-05-26 15:23:54 [INFO ] ─────────────────────────────────────────────────────────────
+2026-05-26 15:23:54 [INFO ] 
+
+================================================================================
+  Status   : Success
+  Finished : 2026-05-26 15:23:54 UTC
+================================================================================

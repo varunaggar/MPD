@@ -1,0 +1,55 @@
+================================================================================
+  M365 Permissions Sync — Log File
+  Process  : Invoke-UserDeltaSync
+  Started  : 2026-05-26 15:23:32 UTC
+  Host     : 
+  User     : 
+  Log File : ./Logs/Invoke-UserDeltaSync_2026-05-26_15-23-32.log
+================================================================================
+
+2026-05-26 15:23:32 [INFO ] Logging initialised — log file: ./Logs/Invoke-UserDeltaSync_2026-05-26_15-23-32.log
+2026-05-26 15:23:32 [INFO ] ─── Invoke-UserDeltaSync ────────────────────────────────────────
+2026-05-26 15:23:32 [INFO ] Config   : /Users/varunaggarwal/Documents/MPD-ENG/WIP/config.xml
+2026-05-26 15:23:32 [INFO ] Server   : mpd-sql-01.database.windows.net
+2026-05-26 15:23:32 [INFO ] Database : mpd-db01
+2026-05-26 15:23:32 [INFO ] ─── Authentication ──────────────────────────────────────────────
+2026-05-26 15:23:32 [INFO ] Establishing Azure connection (AuthType: Secret, Tenant: c2efc329-9485-4475-bdc6-267f4b9954ef, AppId: 29aacb3a-c35b-4f76-a071-835936475a48)...
+2026-05-26 15:23:33 [INFO ] Successfully authenticated to Azure using client secret auth.
+2026-05-26 15:23:33 [INFO ] Service principal connected successfully
+2026-05-26 15:23:33 [INFO ] Graph context initialised (BaseUrl=https://graph.microsoft.com/v1.0)
+2026-05-26 15:23:33 [INFO ] SQL context initialised (Server=mpd-sql-01.database.windows.net, DB=mpd-db01)
+2026-05-26 15:23:33 [INFO ] Requesting fresh SQL access token. Resource: https://database.windows.net/ | Target Tenant: c2efc329-9485-4475-bdc6-267f4b9954ef
+2026-05-26 15:23:34 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-26 15:23:34 [INFO ] Sync log entry created (RunId: 2dba339d-f917-4184-b1bf-65b503ed3d23)
+2026-05-26 15:23:34 [INFO ] Run ID: 2dba339d-f917-4184-b1bf-65b503ed3d23
+2026-05-26 15:23:34 [INFO ] ─── Phase 1 — Fetch delta token ─────────────────────────────────
+2026-05-26 15:23:34 [INFO ] Using cached SQL access token (expires: 05/26/2026 15:18:33 UTC).
+2026-05-26 15:23:34 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-26 15:23:34 [INFO ] Active token found (length: 2391)
+2026-05-26 15:23:34 [INFO ] ─── Phase 2 — Graph delta fetch ─────────────────────────────────
+2026-05-26 15:23:34 [INFO ] Phase [GraphDeltaFetch] starting
+2026-05-26 15:23:34 [INFO ] Fetching delta page 1...
+2026-05-26 15:23:34 [INFO ] Acquiring Graph access token...
+2026-05-26 15:23:34 [INFO ] Graph token acquired. Valid until 05/27/2026 14:13:33 UTC
+2026-05-26 15:23:34 [INFO ] Delta query complete: 1 pages, 0 changed objects
+2026-05-26 15:23:34 [INFO ] Phase [GraphDeltaFetch] completed in 0.51s
+2026-05-26 15:23:34 [INFO ] Delta returned 0 changed objects
+2026-05-26 15:23:34 [INFO ] No changes since last run — nothing to process
+2026-05-26 15:23:34 [INFO ] Using cached SQL access token (expires: 05/26/2026 15:18:33 UTC).
+2026-05-26 15:23:34 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-26 15:23:34 [INFO ] Using cached SQL access token (expires: 05/26/2026 15:18:33 UTC).
+2026-05-26 15:23:34 [INFO ] Attempting SQL login to [mpd-db01] using identity: 29aacb3a-c35b-4f76-a071-835936475a48
+2026-05-26 15:23:34 [INFO ] Sync log entry updated with status: Success
+2026-05-26 15:23:34 [INFO ] 
+2026-05-26 15:23:34 [INFO ] ── Run Summary 
+2026-05-26 15:23:34 [INFO ] ───────────────────────────────────────────────
+2026-05-26 15:23:34 [INFO ]   Status                         Success (no changes)
+2026-05-26 15:23:34 [INFO ]   Duration                       0.6s
+2026-05-26 15:23:34 [INFO ]   Objects changed                0
+2026-05-26 15:23:34 [INFO ] ─────────────────────────────────────────────────────────────
+2026-05-26 15:23:34 [INFO ] 
+
+================================================================================
+  Status   : Success
+  Finished : 2026-05-26 15:23:34 UTC
+================================================================================
